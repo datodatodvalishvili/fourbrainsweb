@@ -1,0 +1,8 @@
+.login-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.error {
+  color: #d8000c;
+}
