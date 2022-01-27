@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import FourBrainsAPI from "../../axios/FourBrainsAPI";
@@ -6,12 +6,19 @@ import QuestionBox from "../QuestionBox/QuestionBox";
 import AnswerBox from "../AnswerBox/AnswerBox";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
+import { ref, update } from "firebase/database";
+import db from "../FireBase/FireBaseConfig";
+import { useObject } from "react-firebase-hooks/database";
 
 export default function Host({ token }) {
-  const [battleStarted, setBattleStarted] = useState(false);
   const [battleID, setBattleID] = useState(0);
-  const [questionNumber, setQuestionNumber] = useState(0);
   const [correctAnswersArray, setCorrectAnswersArray] = useState([]);
+  const [answers, loading, error] = useObject(
+    ref(db, `4brains/battle/${battleID}/answers`)
+  );
+  const [battleStarted, setBattleStarted] = useState(false);
+
+  const [questionNumber, setQuestionNumber] = useState(0);
   const [gameState, setGameState] = useState(0);
   const [question, setQuestion] = useState({
     qn: 0,
@@ -20,6 +27,52 @@ export default function Host({ token }) {
     source: "",
     comment: "",
   });
+  const [answerArray, setAnswerArray] = useState([
+    {
+      answer: "",
+      answer_time: "",
+      teamId: "",
+      qn: "",
+      correctAnswer: "",
+    },
+  ]);
+
+  useEffect(() => {
+    function compare(a, b) {
+      if (a.qn < b.qn) {
+        return -1;
+      }
+      if (a.qn > b.qn) {
+        return 1;
+      }
+      if (a.answer_time < b.answer_time) {
+        return -1;
+      }
+      if (a.answer_time > b.answer_time) {
+        return 1;
+      }
+      return 0;
+    }
+    if (!loading) {
+      let ansArray = [];
+      for (const key in answers.val()) {
+        let ansOb = answers.val()[key];
+        ansArray.push(ansOb);
+      }
+
+      ansArray.sort(compare);
+      setAnswerArray(ansArray);
+    }
+  }, [answers]);
+
+  async function setIsCorrect(IsCorrect, answerId) {
+    const updates = {};
+    updates[
+      `4brains/battle/4/answers/${answerArray[answerId].teamId}_${answerArray[answerId].qn}/is_correct`
+    ] = IsCorrect;
+
+    update(ref(db), updates);
+  }
 
   const startBattle = () => {
     console.log("Battle Start!");
@@ -74,6 +127,22 @@ export default function Host({ token }) {
       console.error(error);
     }
   };
+
+  function timeUp(par) {
+    console.log(123);
+    const updates = {};
+    updates[`4brains/battle/${battleID}/curq/answer`] = question.answer;
+
+    update(ref(db), updates);
+  }
+
+  function startQuestion() {
+    const updates = {};
+    updates[`4brains/battle/${battleID}/curq/start_time`] = Date.now();
+    updates[`4brains/battle/${battleID}/curq/is_active`] = true;
+
+    update(ref(db), updates);
+  }
 
   if (!battleStarted)
     return (

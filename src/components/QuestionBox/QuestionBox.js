@@ -5,10 +5,11 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import Box from "@mui/material/Box";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import IconButton from "@mui/material/IconButton";
+import Timer from "../Timer/Timer";
+import Button from "@mui/material/Button";
 
 export default function QuestionBox({
   question,
@@ -16,17 +17,25 @@ export default function QuestionBox({
   questionNumber,
 }) {
   const [qn, setQn] = useState(1);
+  const [timerStarted, setTimerStarted] = useState(false);
   const handleClickBack = async (event) => {
     await nextQuestion(qn - 2);
     setQn(qn - 1);
+    setTimerStarted(false);
   };
   const handleClickNext = async (event) => {
     await nextQuestion(qn);
     setQn(qn + 1);
+    setTimerStarted(false);
   };
   const handleChange = async (event, newValue) => {
     await nextQuestion(newValue.props.value - 1);
     setQn(newValue.props.value);
+    setTimerStarted(false);
+  };
+
+  const startTimer = () => {
+    setTimerStarted(true);
   };
 
   const qnArr = [...Array(questionNumber).keys()];
@@ -69,7 +78,43 @@ export default function QuestionBox({
           <ArrowForwardIosIcon sx={{ width: 40, height: 40 }} />
         </IconButton>
       </Grid>
-      <h3>{question.question_text}</h3>
+      <Paper
+        elevation={3}
+        sx={{
+          padding: 2,
+          margin: 1,
+          marginBottom: 0,
+          flexGrow: 1,
+          minHeight: 0,
+          height: 200,
+        }}
+      >
+        <h3>{question.question_text}</h3>
+      </Paper>
+      <Paper
+        elevation={3}
+        sx={{
+          padding: 2,
+          margin: 1,
+          marginBottom: 0,
+          flexGrow: 1,
+          minHeight: 0,
+          height: 145,
+          textAlign: "center",
+        }}
+      >
+        {timerStarted ? (
+          <Timer setTimerStarted={setTimerStarted} />
+        ) : (
+          <Button
+            sx={{ width: 500, height: 100, margin: 10 }}
+            variant="outlined"
+            onClick={startTimer}
+          >
+            Start timer
+          </Button>
+        )}
+      </Paper>
     </Paper>
   );
 }
