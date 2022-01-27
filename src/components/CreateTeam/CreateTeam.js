@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import FourBrainsAPI from "../../axios/FourBrainsAPI";
-async function CreateTeamAPI(teamName, setErrorMsg, setTeam, token) {
+async function CreateTeamAPI(teamName, setTeam, token) {
   FourBrainsAPI.post(
     "4brains/team/create/",
     {
@@ -24,17 +24,15 @@ async function CreateTeamAPI(teamName, setErrorMsg, setTeam, token) {
       }
     })
     .catch(function (error) {
-      setErrorMsg("User or password is incorrect!");
       setTeam();
     });
 }
 
 export default function CreateTeam({ setTeam, token }) {
   const [teamName, setTeamName] = useState();
-  const [errorMsg, setErrorMsg] = useState();
   const handleSubmit = async (e) => {
     e.preventDefault();
-    CreateTeamAPI(teamName, setErrorMsg, setTeam, token);
+    CreateTeamAPI(teamName, setTeam, token);
   };
   return (
     <div className="auth-inner">

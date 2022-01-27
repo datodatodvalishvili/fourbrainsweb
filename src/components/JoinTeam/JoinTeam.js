@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import FourBrainsAPI from "../../axios/FourBrainsAPI";
-async function JoinTeamAPI(teamID, setErrorMsg, setTeam, token) {
+async function JoinTeamAPI(teamID, setTeam, token) {
   FourBrainsAPI.post(
     "4brains/team/join/",
     {
@@ -22,17 +22,15 @@ async function JoinTeamAPI(teamID, setErrorMsg, setTeam, token) {
       }
     })
     .catch(function (error) {
-      setErrorMsg("User or password is incorrect!");
       setTeam();
     });
 }
 
 export default function JoinTeam({ setTeam, token }) {
   const [teamID, setTeamID] = useState();
-  const [errorMsg, setErrorMsg] = useState();
   const handleSubmit = async (e) => {
     e.preventDefault();
-    JoinTeamAPI(teamID, setErrorMsg, setTeam, token);
+    JoinTeamAPI(teamID, setTeam, token);
   };
   return (
     <div className="auth-inner">

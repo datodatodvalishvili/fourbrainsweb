@@ -2,6 +2,7 @@ import React from "react";
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./components/Home/Home";
+import Host from "./components/Host/Host";
 import NavBar from "./components/NavBar/NavBar";
 import Login from "./components/Login/Login";
 import Signup from "./components/Signup/Signup";
@@ -35,10 +36,18 @@ function App() {
   return (
     <CurrentUserProvider>
       <div className="App">
-        <NavBar setToken={setToken} />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Home token={token} />} />
+            <Route
+              path="/"
+              element={
+                <>
+                  <NavBar setToken={setToken} />
+                  <Home token={token} />
+                </>
+              }
+            />
+            <Route path="/Host" element={<Host token={token} />} />
           </Routes>
         </BrowserRouter>
       </div>
