@@ -34,16 +34,19 @@ function CircularProgressWithLabel(props) {
   );
 }
 
-export default function Timer({ setTimerStarted }) {
+export default function Timer({ setTimerStarted, timeUp }) {
   const [progress, setProgress] = React.useState(1);
 
   React.useEffect(() => {
     const timer = setInterval(() => {
       setProgress((prevProgress) => {
-        if (prevProgress >= 99) setTimerStarted(false);
+        if (prevProgress >= 99) {
+          timeUp();
+          setTimerStarted(false);
+        }
         return prevProgress >= 99 ? 0 : prevProgress + 1 * 1.66666;
       });
-    }, 1000);
+    }, 100  );
     return () => {
       clearInterval(timer);
     };

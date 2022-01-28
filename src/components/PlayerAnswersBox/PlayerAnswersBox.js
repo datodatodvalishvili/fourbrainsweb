@@ -1,55 +1,34 @@
 import React, { useState } from "react";
+import Paper from "@mui/material/Paper";
+import Grid from "@mui/material/Grid";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import IconButton from "@mui/material/IconButton";
-import Timer from "../Timer/Timer";
-import Button from "@mui/material/Button";
 
-export default function QuestionBox({
-  question,
-  nextQuestion,
-  questionNumber,
-  timeUp,
-  startQuestion,
-}) {
+export default function PlayerAnswersBox({ questionNumber }) {
   const [qn, setQn] = useState(1);
   const [timerStarted, setTimerStarted] = useState(false);
   const handleClickBack = async (event) => {
-    await nextQuestion(qn - 2);
     setQn(qn - 1);
-    setTimerStarted(false);
   };
   const handleClickNext = async (event) => {
-    await nextQuestion(qn);
     setQn(qn + 1);
-    setTimerStarted(false);
   };
   const handleChange = async (event, newValue) => {
-    await nextQuestion(newValue.props.value - 1);
     setQn(newValue.props.value);
-    setTimerStarted(false);
-  };
-
-  const startTimer = () => {
-    setTimerStarted(true);
-    startQuestion();
   };
 
   const qnArr = [...Array(questionNumber).keys()];
 
   return (
     <Paper
-      elevation={3}
+      elevation={5}
       sx={{
-        padding: 2,
         margin: 1,
-        marginBottom: 0,
         flexGrow: 1,
         minHeight: 0,
       }}
@@ -82,42 +61,13 @@ export default function QuestionBox({
         </IconButton>
       </Grid>
       <Paper
-        elevation={3}
+        elevation={5}
         sx={{
-          padding: 2,
           margin: 1,
-          marginBottom: 0,
           flexGrow: 1,
           minHeight: 0,
-          height: 200,
         }}
-      >
-        <h3>{question.question_text}</h3>
-      </Paper>
-      <Paper
-        elevation={3}
-        sx={{
-          padding: 2,
-          margin: 1,
-          marginBottom: 0,
-          flexGrow: 1,
-          minHeight: 0,
-          height: 145,
-          textAlign: "center",
-        }}
-      >
-        {timerStarted ? (
-          <Timer setTimerStarted={setTimerStarted} timeUp={timeUp} />
-        ) : (
-          <Button
-            sx={{ width: 500, height: 100, margin: 10 }}
-            variant="outlined"
-            onClick={startTimer}
-          >
-            Start timer
-          </Button>
-        )}
-      </Paper>
+      ></Paper>
     </Paper>
   );
 }

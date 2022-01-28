@@ -4,8 +4,8 @@ import Button from "@mui/material/Button";
 import FourBrainsAPI from "../../axios/FourBrainsAPI";
 import QuestionBox from "../QuestionBox/QuestionBox";
 import AnswerBox from "../AnswerBox/AnswerBox";
+import PlayerAnswersBox from "../PlayerAnswersBox/PlayerAnswersBox";
 import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
 import { ref, update } from "firebase/database";
 import db from "../FireBase/FireBaseConfig";
 import { useObject } from "react-firebase-hooks/database";
@@ -128,10 +128,10 @@ export default function Host({ token }) {
     }
   };
 
-  function timeUp(par) {
-    console.log(123);
+  function timeUp() {
     const updates = {};
     updates[`4brains/battle/${battleID}/curq/answer`] = question.answer;
+    updates[`4brains/battle/${battleID}/curq/is_active`] = false;
 
     update(ref(db), updates);
   }
@@ -178,6 +178,8 @@ export default function Host({ token }) {
             question={question}
             nextQuestion={nextQuestion}
             questionNumber={questionNumber}
+            startQuestion={startQuestion}
+            timeUp={timeUp}
           />
         </Grid>
         <Grid
@@ -200,14 +202,7 @@ export default function Host({ token }) {
             height: 460,
           }}
         >
-          <Paper
-            elevation={5}
-            sx={{
-              margin: 1,
-              flexGrow: 1,
-              minHeight: 0,
-            }}
-          />
+          <PlayerAnswersBox questionNumber={questionNumber} />
         </Grid>
       </Grid>
     );
