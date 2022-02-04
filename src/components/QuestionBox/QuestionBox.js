@@ -110,7 +110,7 @@ export default function QuestionBox({
           <Timer setTimerStarted={setTimerStarted} timeUp={timeUp} />
         ) : (
           <Button
-            sx={{ width: 500, height: 100, margin: 10 }}
+            sx={{ width: 860, height: 115, margin: 0 }}
             variant="outlined"
             onClick={startTimer}
           >

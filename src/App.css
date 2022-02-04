@@ -94,3 +94,47 @@ html,
   margin: 0;
 }
 
+.player-answer-top-box {
+  padding: 2px;
+  padding-left: 10px;
+  border-top-left-radius: 10%;
+  border-top-right-radius: 10%;
+  height: 100px;
+}
+
+.answer-buttons-box {
+  padding: 2px;
+  border-color: #167bff;
+  border-bottom-left-radius: 10%;
+  border-bottom-right-radius: 10%;
+  height: 50px;
+}
+
+.answer-correct {
+  background-color: #14903f;
+  color: #ffffff;
+}
+
+.answer-wrong {
+  background-color: #d9001d;
+  color: #ffffff;
+}
+
+.answer-buttons-correct {
+  height: 50px;
+  background-color: #14903f;
+  border-bottom-left-radius: 10%;
+}
+
+.answer-buttons-wrong {
+  height: 50px;
+  background-color: #d9001d;
+  border-bottom-right-radius: 10%;
+}
+
+.correct-answer-text {
+  font-size: 50px;
+  margin-top: 8px;
+  margin-left: 20px;
+  margin-right: 20px;
+}

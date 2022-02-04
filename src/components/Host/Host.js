@@ -19,9 +19,9 @@ export default function Host({ token }) {
   const [battleStarted, setBattleStarted] = useState(false);
 
   const [questionNumber, setQuestionNumber] = useState(0);
-  const [gameState, setGameState] = useState(0);
   const [question, setQuestion] = useState({
     qn: 0,
+    id: 0,
     question_text: "",
     answer: "",
     source: "",
@@ -33,6 +33,7 @@ export default function Host({ token }) {
       answer_time: "",
       teamId: "",
       qn: "",
+      id: "",
       correctAnswer: "",
     },
   ]);
@@ -65,11 +66,37 @@ export default function Host({ token }) {
     }
   }, [answers]);
 
-  async function setIsCorrect(IsCorrect, answerId) {
+  async function submitAnswer(IsCorrect, answerOb) {
+    console.log(answerOb);
+    FourBrainsAPI.post(
+      "4brains/battle/team/question/answer/submit/",
+      {
+        battle_id: battleID,
+        question_id: answerOb.id,
+        team_id: answerOb.teamId,
+        answer_time: answerOb.answer_time / 1000,
+        answer_text: answerOb.answer,
+        decision: IsCorrect ? 1 : 0,
+      },
+      {
+        headers: { Authorization: `Token ${token}` },
+      }
+    )
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.log(error.response.data);
+      });
+  }
+
+  async function setIsCorrect(IsCorrect, answerOb) {
     const updates = {};
     updates[
-      `4brains/battle/4/answers/${answerArray[answerId].teamId}_${answerArray[answerId].qn}/is_correct`
+      `4brains/battle/${battleID}/answers/${answerOb.teamId}_${answerOb.qn}/is_correct`
     ] = IsCorrect;
+
+    submitAnswer(IsCorrect, answerOb);
 
     update(ref(db), updates);
   }
@@ -89,11 +116,9 @@ export default function Host({ token }) {
         .then(function (response) {
           // handle success
           if (response.data.question_data) {
-            setCorrectAnswersArray([
-              ...correctAnswersArray,
-              response.data.question_data.answer,
-            ]);
-            setGameState(1);
+            const tempArray = correctAnswersArray.slice(0);
+            tempArray[qn + 1] = response.data.question_data.answer;
+            setCorrectAnswersArray(tempArray);
             setQuestion(response.data.question_data);
           } else alert("Server error");
         })
@@ -131,7 +156,6 @@ export default function Host({ token }) {
   function timeUp() {
     const updates = {};
     updates[`4brains/battle/${battleID}/curq/answer`] = question.answer;
-    updates[`4brains/battle/${battleID}/curq/is_active`] = false;
 
     update(ref(db), updates);
   }
@@ -202,7 +226,12 @@ export default function Host({ token }) {
             height: 460,
           }}
         >
-          <PlayerAnswersBox questionNumber={questionNumber} />
+          <PlayerAnswersBox
+            questionNumber={questionNumber}
+            answerArray={answerArray}
+            setIsCorrect={setIsCorrect}
+            correctAnswersArray={correctAnswersArray}
+          />
         </Grid>
       </Grid>
     );

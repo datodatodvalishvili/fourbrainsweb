@@ -8,10 +8,16 @@ import Select from "@mui/material/Select";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import IconButton from "@mui/material/IconButton";
+import PlayerAnswer from "./PlayerAnswer";
+import Button from "@mui/material/Button";
 
-export default function PlayerAnswersBox({ questionNumber }) {
+export default function PlayerAnswersBox({
+  questionNumber,
+  answerArray,
+  setIsCorrect,
+  correctAnswersArray,
+}) {
   const [qn, setQn] = useState(1);
-  const [timerStarted, setTimerStarted] = useState(false);
   const handleClickBack = async (event) => {
     setQn(qn - 1);
   };
@@ -20,6 +26,29 @@ export default function PlayerAnswersBox({ questionNumber }) {
   };
   const handleChange = async (event, newValue) => {
     setQn(newValue.props.value);
+  };
+
+  const handleClickAllTrue = async (event) => {
+    for (const answer of answerArray) {
+      if (
+        (answer.is_correct !== true) &
+        (answer.is_correct !== false) &
+        (answer.qn === qn)
+      ) {
+        setIsCorrect(true, answer);
+      }
+    }
+  };
+  const handleClickAllFalse = async (event) => {
+    for (const answer of answerArray) {
+      if (
+        (answer.is_correct !== true) &
+        (answer.is_correct !== false) &
+        (answer.qn === qn)
+      ) {
+        setIsCorrect(false, answer);
+      }
+    }
   };
 
   const qnArr = [...Array(questionNumber).keys()];
@@ -37,7 +66,7 @@ export default function PlayerAnswersBox({ questionNumber }) {
         <IconButton onClick={handleClickBack} size="medium" sx={{ ml: 2 }}>
           <ArrowBackIosNewIcon sx={{ width: 40, height: 40 }} />
         </IconButton>
-        <Grid item xs={2}>
+        <Grid item xs={1}>
           <FormControl fullWidth margin="normal">
             <InputLabel>Question</InputLabel>
             <Select
@@ -59,15 +88,31 @@ export default function PlayerAnswersBox({ questionNumber }) {
         <IconButton onClick={handleClickNext} size="medium" sx={{ ml: 2 }}>
           <ArrowForwardIosIcon sx={{ width: 40, height: 40 }} />
         </IconButton>
+        <div className="correct-answer-text">{correctAnswersArray[qn]}</div>
+        <Button
+          variant="outlined"
+          onClick={handleClickAllTrue}
+          size="medium"
+          sx={{ ml: 1 }}
+        >
+          Mark remaining correct
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={handleClickAllFalse}
+          size="medium"
+          sx={{ ml: 2 }}
+        >
+          Mark remaining false
+        </Button>
       </Grid>
-      <Paper
-        elevation={5}
-        sx={{
-          margin: 1,
-          flexGrow: 1,
-          minHeight: 0,
-        }}
-      ></Paper>
+      <Grid container spacing={{ xs: 0, md: 0 }}>
+        {answerArray
+          .filter((answer) => answer.qn === qn)
+          .map((answer) => (
+            <PlayerAnswer answer={answer} setIsCorrect={setIsCorrect} />
+          ))}
+      </Grid>
     </Paper>
   );
 }

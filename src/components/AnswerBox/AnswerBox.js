@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
-import Tab from "@material-ui/core/Tab";
+import Tab from "@mui/material/Tab";
 import TabContext from "@material-ui/lab/TabContext";
 import TabList from "@material-ui/lab/TabList";
 import TabPanel from "@material-ui/lab/TabPanel";

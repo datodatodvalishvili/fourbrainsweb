@@ -2,12 +2,18 @@ import React from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import Player from "../SoundPlayer/SoundPlayer";
 
 function CircularProgressWithLabel(props) {
   return (
     <div style={{ textAlign: "center" }}>
       <Box sx={{ position: "relative", display: "inline-flex" }}>
         <CircularProgress variant="determinate" {...props} size={100} />
+        <Player
+          url={
+            "https://assets.mixkit.co/sfx/download/mixkit-slow-tick-tock-clock-timer-1050.wav"
+          }
+        />
         <Box
           sx={{
             top: 0,
@@ -46,7 +52,7 @@ export default function Timer({ setTimerStarted, timeUp }) {
         }
         return prevProgress >= 99 ? 0 : prevProgress + 1 * 1.66666;
       });
-    }, 100  );
+    }, 1000);
     return () => {
       clearInterval(timer);
     };
