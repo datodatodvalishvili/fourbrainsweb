@@ -35,11 +35,15 @@ export default function AnswerBox({ question }) {
               <Tab label="Answer" value="1" />
               <Tab label="Comment" value="2" />
               <Tab label="Source" value="3" />
-              <Tab label="Extras" value="4" />
+              <Tab
+                label="Extras"
+                value="4"
+                disabled={!question.attachment_img_url}
+              />
             </TabList>
           </Box>
           <TabPanel value="1">
-            <h3>{question.answer}</h3>
+            <h3>{question.answers}</h3>
           </TabPanel>
           <TabPanel value="2">
             <h3>{question.comment}</h3>
@@ -47,7 +51,9 @@ export default function AnswerBox({ question }) {
           <TabPanel value="3">
             <h3>{question.source}</h3>
           </TabPanel>
-          <TabPanel value="4"></TabPanel>
+          <TabPanel value="4">
+            <img src={question.attachment_img_url} alt="attachment" />
+          </TabPanel>
         </TabContext>
       </Box>
     </Paper>

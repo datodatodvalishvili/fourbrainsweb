@@ -9,11 +9,13 @@ function CircularProgressWithLabel(props) {
     <div style={{ textAlign: "center" }}>
       <Box sx={{ position: "relative", display: "inline-flex" }}>
         <CircularProgress variant="determinate" {...props} size={100} />
-        <Player
-          url={
-            "https://assets.mixkit.co/sfx/download/mixkit-slow-tick-tock-clock-timer-1050.wav"
-          }
-        />
+        {props.value > 83.333 && (
+          <Player
+            url={
+              "https://assets.mixkit.co/sfx/download/mixkit-slow-tick-tock-clock-timer-1050.wav"
+            }
+          />
+        )}
         <Box
           sx={{
             top: 0,

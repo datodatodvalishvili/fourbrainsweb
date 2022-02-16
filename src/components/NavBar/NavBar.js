@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { useCurrentUser } from "../../context/UserContext";
-import Logout from "../Logout/Logout";
 import Profile from "./Profile";
 
 export default function NavBar({ setToken }) {
@@ -17,9 +16,8 @@ export default function NavBar({ setToken }) {
       </a>
       <div className="navbar-nav">
         {currentUser && (
-          <Profile currentUser = {currentUser}/>
+          <Profile currentUser={currentUser} setToken={setToken} />
         )}
-        <Logout setToken={setToken} />
       </div>
     </nav>
   );

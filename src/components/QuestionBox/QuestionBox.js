@@ -17,8 +17,9 @@ export default function QuestionBox({
   questionNumber,
   timeUp,
   startQuestion,
+  qn,
+  setQn,
 }) {
-  const [qn, setQn] = useState(1);
   const [timerStarted, setTimerStarted] = useState(false);
   const handleClickBack = async (event) => {
     await nextQuestion(qn - 2);
@@ -109,11 +110,7 @@ export default function QuestionBox({
         {timerStarted ? (
           <Timer setTimerStarted={setTimerStarted} timeUp={timeUp} />
         ) : (
-          <Button
-            sx={{ width: 860, height: 115, margin: 0 }}
-            variant="outlined"
-            onClick={startTimer}
-          >
+          <Button sx={{ height: 115 }} variant="outlined" onClick={startTimer}>
             Start timer
           </Button>
         )}

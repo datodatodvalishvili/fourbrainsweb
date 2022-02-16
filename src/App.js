@@ -3,6 +3,7 @@ import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./components/Home/Home";
 import Host from "./components/Host/Host";
+import ScoreBoard from "./components/ScoreBoard/ScoreBoard";
 import NavBar from "./components/NavBar/NavBar";
 import Login from "./components/Login/Login";
 import Signup from "./components/Signup/Signup";
@@ -48,6 +49,10 @@ function App() {
               }
             />
             <Route path="/Host" element={<Host token={token} />} />
+            <Route
+              path="/ScoreBoard/:battleID"
+              element={<ScoreBoard token={token} />}
+            />
           </Routes>
         </BrowserRouter>
       </div>

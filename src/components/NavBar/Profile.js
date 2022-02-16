@@ -7,7 +7,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 
-export default function Profile({ currentUser }) {
+export default function Profile({ currentUser, setToken }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -15,6 +15,10 @@ export default function Profile({ currentUser }) {
   };
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogOut = () => {
+    setToken("");
   };
 
   return (
@@ -68,9 +72,9 @@ export default function Profile({ currentUser }) {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem>
+        <MenuItem onClick={handleLogOut}>
           <ListItemIcon>
-            <Logout fontSize="small" onClick={console.log("te")} />
+            <Logout fontSize="small" />
           </ListItemIcon>
           Logout
         </MenuItem>

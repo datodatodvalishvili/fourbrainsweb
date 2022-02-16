@@ -3,20 +3,20 @@ import FourBrainsAPI from "./axios/FourBrainsAPI";
 export default function useToken() {
   const getToken = () => {
     const tokenString = localStorage.getItem("token");
-
-    try {
-      FourBrainsAPI.get(`user/get-details/`, {
-        headers: {
-          Authorization: `Token ${tokenString}`,
-        },
-      })
-        .then(function (response) {
+    if (tokenString) {
+      try {
+        FourBrainsAPI.get(`user/get-details/`, {
+          headers: {
+            Authorization: `Token ${tokenString}`,
+          },
         })
-        .catch(function (error) {
-          saveToken("");
-          return "";
-        });
-    } catch (error) {}
+          .then(function (response) {})
+          .catch(function (error) {
+            saveToken("");
+            return "";
+          });
+      } catch (error) {}
+    }
 
     return tokenString;
   };

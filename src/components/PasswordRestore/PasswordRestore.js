@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import FourBrainsAPI from "../../axios/FourBrainsAPI";
 import { useNavigate } from "react-router";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
+import Stack from "@mui/material/Stack";
 
 async function passwordRestoreApi(username, setErrorMsg, navigate) {
   FourBrainsAPI.post("user/password/get-reset-link/", {
@@ -22,8 +26,8 @@ async function passwordRestoreApi(username, setErrorMsg, navigate) {
 }
 
 export default function PasswordRestore() {
-  const [username, setUserName] = useState();
-  const [errorMsg, setErrorMsg] = useState();
+  const [username, setUserName] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
   let navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,25 +40,23 @@ export default function PasswordRestore() {
     );
   };
   return (
-    <form onSubmit={handleSubmit}>
+    <Stack spacing={2}>
       <h1>Restore password</h1>
-      <div className="form-group">
-        <label>
-          <p>Username or password</p>
-          <input
-            className="form-control"
-            type="text"
-            onChange={(e) => setUserName(e.target.value)}
-          />
-        </label>
-      </div>
-      <button type="submit" className="btn btn-primary btn-block">
+      <TextField
+        id="outlined-username"
+        label="Username or Email"
+        value={username}
+        onChange={(event) => {
+          setUserName(event.target.value);
+        }}
+      />
+      <Button variant="contained" color="info" onClick={handleSubmit}>
         Submit
-      </button>
-      <div>{errorMsg && <p className="error"> {errorMsg} </p>}</div>
+      </Button>
+      {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <p className="forgot-password text-right">
         Not registered?<a href="/signup"> sign up</a>
       </p>
-    </form>
+    </Stack>
   );
 }

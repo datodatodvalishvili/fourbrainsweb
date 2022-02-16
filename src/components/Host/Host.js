@@ -9,6 +9,7 @@ import Grid from "@mui/material/Grid";
 import { ref, update } from "firebase/database";
 import db from "../FireBase/FireBaseConfig";
 import { useObject } from "react-firebase-hooks/database";
+import Stack from "@mui/material/Stack";
 
 export default function Host({ token }) {
   const [battleID, setBattleID] = useState(0);
@@ -17,8 +18,10 @@ export default function Host({ token }) {
     ref(db, `4brains/battle/${battleID}/answers`)
   );
   const [battleStarted, setBattleStarted] = useState(false);
-
+  const [qn, setQn] = useState(1);
+  const [qnAnswers, setQnAnswers] = useState(1);
   const [questionNumber, setQuestionNumber] = useState(0);
+  const [answerCheckDisasbled, setAnswerCheckDisasbled] = useState(true);
   const [question, setQuestion] = useState({
     qn: 0,
     id: 0,
@@ -59,6 +62,9 @@ export default function Host({ token }) {
       for (const key in answers.val()) {
         let ansOb = answers.val()[key];
         ansArray.push(ansOb);
+        if (ansOb.is_correct !== true && ansOb.is_correct !== false) {
+          submitCheckAnswer(ansOb);
+        }
       }
 
       ansArray.sort(compare);
@@ -90,6 +96,34 @@ export default function Host({ token }) {
       });
   }
 
+  async function submitCheckAnswer(answerOb) {
+    FourBrainsAPI.post(
+      "4brains/battle/team/question/answer/submit&check/",
+      {
+        battle_id: battleID,
+        question_id: answerOb.id,
+        team_id: answerOb.teamId,
+        answer_time: answerOb.answer_time / 1000,
+        answer_text: answerOb.answer,
+      },
+      {
+        headers: { Authorization: `Token ${token}` },
+      }
+    )
+      .then(function (response) {
+        const IsCorrect = response.data.closest_levenshtein_score === 0;
+        if (IsCorrect) {
+          const updates = {};
+          updates[
+            `4brains/battle/${battleID}/answers/${answerOb.teamId}_${answerOb.qn}/is_correct`
+          ] = IsCorrect;
+          update(ref(db), updates);
+        }
+      })
+      .catch(function (error) {
+        console.log(error.response.data);
+      });
+  }
   async function setIsCorrect(IsCorrect, answerOb) {
     const updates = {};
     updates[
@@ -104,7 +138,6 @@ export default function Host({ token }) {
   const startBattle = () => {
     console.log("Battle Start!");
     getBattleDetails();
-    nextQuestion(0);
   };
 
   const nextQuestion = async (qn) => {
@@ -117,9 +150,10 @@ export default function Host({ token }) {
           // handle success
           if (response.data.question_data) {
             const tempArray = correctAnswersArray.slice(0);
-            tempArray[qn + 1] = response.data.question_data.answer;
+            tempArray[qn + 1] = response.data.question_data.answers;
             setCorrectAnswersArray(tempArray);
             setQuestion(response.data.question_data);
+            setAnswerCheckDisasbled(true);
           } else alert("Server error");
         })
         .catch(function (error) {
@@ -142,6 +176,9 @@ export default function Host({ token }) {
           if (response.data.battle) {
             setQuestionNumber(response.data.battle.n_questions);
             setBattleStarted(true);
+            setQn(response.data.battle.n_current_question);
+            setQnAnswers(response.data.battle.n_current_qanswers);
+            nextQuestion(response.data.battle.n_current_question - 1);
           } else alert("Server error");
         })
         .catch(function (error) {
@@ -155,12 +192,13 @@ export default function Host({ token }) {
 
   function timeUp() {
     const updates = {};
-    updates[`4brains/battle/${battleID}/curq/answer`] = question.answer;
+    updates[`4brains/battle/${battleID}/curq/answer`] = question.answers;
 
     update(ref(db), updates);
   }
 
   function startQuestion() {
+    setAnswerCheckDisasbled(false);
     const updates = {};
     updates[`4brains/battle/${battleID}/curq/start_time`] = Date.now();
     updates[`4brains/battle/${battleID}/curq/is_active`] = true;
@@ -171,19 +209,25 @@ export default function Host({ token }) {
   if (!battleStarted)
     return (
       <div className="auth-inner">
-        <h1>Enter battle ID</h1>
-        <TextField
-          id="outlined-number"
-          label="Battle ID"
-          type="number"
-          value={battleID}
-          onChange={(event) => {
-            setBattleID(event.target.value);
-          }}
-        />
-        <Button variant="contained" color="info" onClick={() => startBattle()}>
-          Start Battle
-        </Button>
+        <Stack spacing={2}>
+          <h1>Enter battle ID</h1>
+          <TextField
+            id="outlined-number"
+            label="Battle ID"
+            type="number"
+            value={battleID}
+            onChange={(event) => {
+              setBattleID(event.target.value);
+            }}
+          />
+          <Button
+            variant="contained"
+            color="info"
+            onClick={() => startBattle()}
+          >
+            Start Battle
+          </Button>
+        </Stack>
       </div>
     );
   else
@@ -204,6 +248,8 @@ export default function Host({ token }) {
             questionNumber={questionNumber}
             startQuestion={startQuestion}
             timeUp={timeUp}
+            qn={qn}
+            setQn={setQn}
           />
         </Grid>
         <Grid
@@ -231,6 +277,9 @@ export default function Host({ token }) {
             answerArray={answerArray}
             setIsCorrect={setIsCorrect}
             correctAnswersArray={correctAnswersArray}
+            qnAnswers={qnAnswers}
+            setQnAnswers={setQnAnswers}
+            answerCheckDisasbled={answerCheckDisasbled}
           />
         </Grid>
       </Grid>

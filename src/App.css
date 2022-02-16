@@ -124,12 +124,14 @@ html,
   height: 50px;
   background-color: #14903f;
   border-bottom-left-radius: 10%;
+  text-align: center;
 }
 
 .answer-buttons-wrong {
   height: 50px;
   background-color: #d9001d;
   border-bottom-right-radius: 10%;
+  text-align: center;
 }
 
 .correct-answer-text {

@@ -45,8 +45,10 @@ export default function TeamMembers() {
   };
 
   return (
+    <div>
     <TransitionGroup
       sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+      component="ul"
     >
       {teamMembers.map((value) => (
         <Collapse key={value}>
@@ -66,7 +68,9 @@ export default function TeamMembers() {
           </ListItem>
         </Collapse>
       ))}
-      <ListItem autoFocus button onClick={handleClickOpen}>
+      
+    </TransitionGroup>
+    <ListItem autoFocus button onClick={handleClickOpen}>
         <ListItemAvatar>
           <Avatar>
             <AddIcon />
@@ -96,6 +100,6 @@ export default function TeamMembers() {
           <Button onClick={sendInvitation}>Send</Button>
         </DialogActions>
       </Dialog>
-    </TransitionGroup>
+      </div>
   );
 }

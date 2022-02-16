@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import FourBrainsAPI from "../../axios/FourBrainsAPI";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
 async function CreateTeamAPI(teamName, setTeam, token) {
   FourBrainsAPI.post(
     "4brains/team/create/",
@@ -24,34 +27,33 @@ async function CreateTeamAPI(teamName, setTeam, token) {
       }
     })
     .catch(function (error) {
-      setTeam();
+      setTeam(); 
     });
 }
 
 export default function CreateTeam({ setTeam, token }) {
-  const [teamName, setTeamName] = useState();
+  const [teamName, setTeamName] = useState("");
   const handleSubmit = async (e) => {
     e.preventDefault();
     CreateTeamAPI(teamName, setTeam, token);
+    setTeamName("");
   };
   return (
-    <div className="auth-inner">
-      <form onSubmit={handleSubmit}>
+    <div className="team-inner">
+      <Stack spacing={2}>
         <h1>Create team</h1>
-        <div className="form-group">
-          <label>
-            <p>Team name</p>
-            <input
-              className="form-control"
-              type="text"
-              onChange={(e) => setTeamName(e.target.value)}
-            />
-          </label>
-        </div>
-        <button type="submit" className="btn btn-primary btn-block">
-          Submit
-        </button>
-      </form>
+        <TextField
+          id="outlined-teamName"
+          label="Team name"
+          value={teamName}
+          onChange={(event) => {
+            setTeamName(event.target.value);
+          }}
+        />
+        <Button variant="contained" color="info" onClick={handleSubmit}>
+          Create team
+        </Button>
+      </Stack>
     </div>
   );
 }

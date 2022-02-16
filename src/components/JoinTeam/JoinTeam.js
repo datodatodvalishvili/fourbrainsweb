@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 import FourBrainsAPI from "../../axios/FourBrainsAPI";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
+
 async function JoinTeamAPI(teamID, setTeam, token) {
   FourBrainsAPI.post(
     "4brains/team/join/",
@@ -34,22 +38,20 @@ export default function JoinTeam({ setTeam, token }) {
   };
   return (
     <div className="auth-inner">
-      <form onSubmit={handleSubmit}>
+      <Stack spacing={2}>
         <h1>Join team</h1>
-        <div className="form-group">
-          <label>
-            <p>Team ID</p>
-            <input
-              className="form-control"
-              type="text"
-              onChange={(e) => setTeamID(e.target.value)}
-            />
-          </label>
-        </div>
-        <button type="submit" className="btn btn-primary btn-block">
-          Submit
-        </button>
-      </form>
+        <TextField
+          id="outlined-teamID"
+          label="Team ID"
+          value={teamID}
+          onChange={(event) => {
+            setTeamID(event.target.value);
+          }}
+        />
+        <Button variant="contained" color="info" onClick={handleSubmit}>
+          Join team
+        </Button>
+      </Stack>
     </div>
   );
 }
