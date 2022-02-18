@@ -14,7 +14,8 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 async function GetTeam(token, setTeams, setIsLoading) {
-  FourBrainsAPI.get("4brains/user/teams/get/", {
+  let teams = null;
+  await FourBrainsAPI.get("4brains/user/teams/get/", {
     headers: {
       Authorization: `Token ${token}`,
     },
@@ -23,21 +24,57 @@ async function GetTeam(token, setTeams, setIsLoading) {
       // handle success
       if (response.data.success) {
         if (response.data.teams[0]) {
-          setTeams(response.data.teams);
-          setIsLoading(false);
+          teams = response.data.teams;
         } else {
-          setTeams(null);
+          teams = null;
           setIsLoading(false);
         }
       } else {
-        setTeams(null);
+        teams = null;
         setIsLoading(false);
       }
     })
     .catch(function (error) {
-      setTeams(null);
+      teams = null;
       setIsLoading(false);
     });
+  if (teams) {
+    teams = await GetTeamDetails(token, teams, setIsLoading);
+  }
+
+  setTeams(teams);
+}
+
+async function GetTeamDetails(token, teams, setIsLoading) {
+  await teams.forEach(function (arrayItem, idx, array) {
+    FourBrainsAPI.get(`4brains/team/${arrayItem.id}/info/`, {
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    })
+      .then(function (response) {
+        // handle success
+        if (response.data.success) {
+          if (response.data.members_data[0]) {
+            arrayItem.members_data = response.data.members_data;
+          } else {
+            arrayItem.members_data = null;
+          }
+        } else {
+          arrayItem.members_data = null;
+        }
+        if (idx === array.length - 1) {
+          setIsLoading(false);
+        }
+      })
+      .catch(function (error) {
+        arrayItem.members_data = null;
+        if (idx === array.length - 1) {
+          setIsLoading(false);
+        }
+      });
+  });
+  return teams;
 }
 
 export default function Home({ token }) {
@@ -51,6 +88,7 @@ export default function Home({ token }) {
   const setTeamsAPI = async () => {
     await GetTeam(token, setTeams, setIsLoading);
   };
+
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -115,6 +153,7 @@ export default function Home({ token }) {
           team={team}
           leaveTeam={leaveTeam}
           setSelectedTeamID={setSelectedTeamID}
+          team={team}
         />
       </Grid>
     ));

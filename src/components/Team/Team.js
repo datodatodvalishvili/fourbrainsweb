@@ -10,7 +10,7 @@ export default function Team({ team, leaveTeam, setSelectedTeamID }) {
         <h1>Your team</h1>
         <p>Team ID: {team.id} </p>
         <p>Team name: {team.name} </p>
-        <TeamMembers />
+        <TeamMembers team={team} />
         <Button
           variant="outlined"
           color="error"
