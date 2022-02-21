@@ -34,7 +34,7 @@ function CircularProgressWithLabel(props) {
             color="text.secondary"
             sx={{ fontSize: 50 }}
           >
-            {`${Math.round(props.value / 1.66666)}`}
+            {`${60 - Math.round(props.value / 1.66666)}`}
           </Typography>
         </Box>
       </Box>

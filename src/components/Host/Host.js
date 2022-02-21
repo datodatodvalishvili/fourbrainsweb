@@ -154,6 +154,11 @@ export default function Host({ token }) {
             setCorrectAnswersArray(tempArray);
             setQuestion(response.data.question_data);
             setAnswerCheckDisasbled(true);
+            setQnAnswers(
+              (response.data.question_data.qn === 1
+                ? 1
+                : response.data.question_data.qn - 1)
+            );
           } else alert("Server error");
         })
         .catch(function (error) {
@@ -193,7 +198,9 @@ export default function Host({ token }) {
   function timeUp() {
     const updates = {};
     updates[`4brains/battle/${battleID}/curq/answer`] = question.answers;
-
+    if (questionNumber === qn) {
+      updates[`4brains/battle/${battleID}/curq/gameOver`] = true;
+    }
     update(ref(db), updates);
   }
 

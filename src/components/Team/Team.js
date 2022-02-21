@@ -1,9 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Button from "@mui/material/Button";
 import TeamMembers from "./TeamMembers";
 import ListItem from "@mui/material/ListItem";
+import { getTeamDetails } from "../../state/teamsSlice";
+import { useDispatch } from "react-redux";
 
-export default function Team({ team, leaveTeam, setSelectedTeamID }) {
+export default function Team({ team, leaveTeam, setSelectedTeamID, token }) {
+  const dispach = useDispatch();
+  useEffect(() => {
+    if (!team.members_data) {
+      dispach(getTeamDetails({ ...team, token: token }));
+    }
+  }, []);
   return (
     <ListItem key={team.id} disableGutters>
       <div className="team-inner">

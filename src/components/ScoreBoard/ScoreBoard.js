@@ -49,6 +49,12 @@ export default function ScoreBoard({ token }) {
       }
     };
     getScoreBoard();
+    const scoreBoardUpdate = setInterval(() => {
+      getScoreBoard();
+    }, 5000);
+    return () => {
+      clearInterval(scoreBoardUpdate);
+    };
   }, []);
 
   return (
