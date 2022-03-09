@@ -10,36 +10,28 @@ import { ref, update } from "firebase/database";
 import db from "../FireBase/FireBaseConfig";
 import { useObject } from "react-firebase-hooks/database";
 import Stack from "@mui/material/Stack";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  setAnswerArray,
+  selectGameState,
+  nextQuestion,
+  getBattleDetails,
+  selectBattleStarted,
+  setAnswerCheckDisasbled,
+  setBattleID,
+} from "../../state/gameSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Host({ token }) {
-  const [battleID, setBattleID] = useState(0);
-  const [correctAnswersArray, setCorrectAnswersArray] = useState([]);
+  const dispatch = useDispatch();
+  dispatch(setBattleID(useParams().battleID));
+  const battleStarted = useSelector(selectBattleStarted);
+  const gameState = useSelector(selectGameState);
   const [answers, loading, error] = useObject(
-    ref(db, `4brains/battle/${battleID}/answers`)
+    ref(db, `4brains/battle/${gameState.battleID}/answers`)
   );
-  const [battleStarted, setBattleStarted] = useState(false);
-  const [qn, setQn] = useState(1);
-  const [qnAnswers, setQnAnswers] = useState(1);
-  const [questionNumber, setQuestionNumber] = useState(0);
-  const [answerCheckDisasbled, setAnswerCheckDisasbled] = useState(true);
-  const [question, setQuestion] = useState({
-    qn: 0,
-    id: 0,
-    question_text: "",
-    answer: "",
-    source: "",
-    comment: "",
-  });
-  const [answerArray, setAnswerArray] = useState([
-    {
-      answer: "",
-      answer_time: "",
-      teamId: "",
-      qn: "",
-      id: "",
-      correctAnswer: "",
-    },
-  ]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     function compare(a, b) {
@@ -68,16 +60,21 @@ export default function Host({ token }) {
       }
 
       ansArray.sort(compare);
-      setAnswerArray(ansArray);
+      dispatch(setAnswerArray(ansArray));
     }
   }, [answers]);
 
+  useEffect(() => {
+    if (battleStarted)
+      dispatch(nextQuestion({ token: token, qn: gameState.qn - 1 }));
+    else dispatch(getBattleDetails({ token: token }));
+  }, [battleStarted]);
+
   async function submitAnswer(IsCorrect, answerOb) {
-    console.log(answerOb);
     FourBrainsAPI.post(
       "4brains/battle/team/question/answer/submit/",
       {
-        battle_id: battleID,
+        battle_id: gameState.battleID,
         question_id: answerOb.id,
         team_id: answerOb.teamId,
         answer_time: answerOb.answer_time / 1000,
@@ -88,19 +85,15 @@ export default function Host({ token }) {
         headers: { Authorization: `Token ${token}` },
       }
     )
-      .then(function (response) {
-        console.log(response.data);
-      })
-      .catch(function (error) {
-        console.log(error.response.data);
-      });
+      .then(function (response) {})
+      .catch(function (error) {});
   }
 
   async function submitCheckAnswer(answerOb) {
     FourBrainsAPI.post(
       "4brains/battle/team/question/answer/submit&check/",
       {
-        battle_id: battleID,
+        battle_id: gameState.battleID,
         question_id: answerOb.id,
         team_id: answerOb.teamId,
         answer_time: answerOb.answer_time / 1000,
@@ -115,19 +108,17 @@ export default function Host({ token }) {
         if (IsCorrect) {
           const updates = {};
           updates[
-            `4brains/battle/${battleID}/answers/${answerOb.teamId}_${answerOb.qn}/is_correct`
+            `4brains/battle/${gameState.battleID}/answers/${answerOb.teamId}_${answerOb.qn}/is_correct`
           ] = IsCorrect;
           update(ref(db), updates);
         }
       })
-      .catch(function (error) {
-        console.log(error.response.data);
-      });
+      .catch(function (error) {});
   }
   async function setIsCorrect(IsCorrect, answerOb) {
     const updates = {};
     updates[
-      `4brains/battle/${battleID}/answers/${answerOb.teamId}_${answerOb.qn}/is_correct`
+      `4brains/battle/${gameState.battleID}/answers/${answerOb.teamId}_${answerOb.qn}/is_correct`
     ] = IsCorrect;
 
     submitAnswer(IsCorrect, answerOb);
@@ -135,160 +126,66 @@ export default function Host({ token }) {
     update(ref(db), updates);
   }
 
-  const startBattle = () => {
-    console.log("Battle Start!");
-    getBattleDetails();
-  };
-
-  const nextQuestion = async (qn) => {
-    try {
-      console.log(token);
-      FourBrainsAPI.get(`4brains/battle/${battleID}/question/${qn + 1}`, {
-        headers: { Authorization: `Token ${token}` },
-      })
-        .then(function (response) {
-          // handle success
-          if (response.data.question_data) {
-            const tempArray = correctAnswersArray.slice(0);
-            tempArray[qn + 1] = response.data.question_data.answers;
-            setCorrectAnswersArray(tempArray);
-            setQuestion(response.data.question_data);
-            setAnswerCheckDisasbled(true);
-            setQnAnswers(
-              (response.data.question_data.qn === 1
-                ? 1
-                : response.data.question_data.qn - 1)
-            );
-          } else alert("Server error");
-        })
-        .catch(function (error) {
-          console.error(error.response.data);
-          alert(error.message);
-        });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getBattleDetails = async () => {
-    try {
-      console.log(token);
-      FourBrainsAPI.get(`4brains/battle/${battleID}/details/`, {
-        headers: { Authorization: `Token ${token}` },
-      })
-        .then(function (response) {
-          // handle success
-          if (response.data.battle) {
-            setQuestionNumber(response.data.battle.n_questions);
-            setBattleStarted(true);
-            setQn(response.data.battle.n_current_question);
-            setQnAnswers(response.data.battle.n_current_qanswers);
-            nextQuestion(response.data.battle.n_current_question - 1);
-          } else alert("Server error");
-        })
-        .catch(function (error) {
-          console.error(error.response.data);
-          alert(error.message);
-        });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   function timeUp() {
     const updates = {};
-    updates[`4brains/battle/${battleID}/curq/answer`] = question.answers;
-    if (questionNumber === qn) {
-      updates[`4brains/battle/${battleID}/curq/gameOver`] = true;
+    updates[`4brains/battle/${gameState.battleID}/curq/answer`] =
+      gameState.question.answers;
+    if (gameState.questionNumber === gameState.qn) {
+      updates[`4brains/battle/${gameState.battleID}/curq/gameOver`] = true;
+      navigate(`/scoreboard/${gameState.battleID}`);
     }
     update(ref(db), updates);
   }
 
   function startQuestion() {
-    setAnswerCheckDisasbled(false);
+    dispatch(setAnswerCheckDisasbled(false));
     const updates = {};
-    updates[`4brains/battle/${battleID}/curq/start_time`] = Date.now();
-    updates[`4brains/battle/${battleID}/curq/is_active`] = true;
+    updates[`4brains/battle/${gameState.battleID}/curq/start_time`] =
+      Date.now();
+    updates[`4brains/battle/${gameState.battleID}/curq/is_active`] = true;
 
     update(ref(db), updates);
   }
 
-  if (!battleStarted)
-    return (
-      <div className="auth-inner">
-        <Stack spacing={2}>
-          <h1>Enter battle ID</h1>
-          <TextField
-            id="outlined-number"
-            label="Battle ID"
-            type="number"
-            value={battleID}
-            onChange={(event) => {
-              setBattleID(event.target.value);
-            }}
-          />
-          <Button
-            variant="contained"
-            color="info"
-            onClick={() => startBattle()}
-          >
-            Start Battle
-          </Button>
-        </Stack>
-      </div>
-    );
-  else
-    return (
-      <Grid container spacing={{ xs: 0, md: 0 }}>
-        <Grid
-          item
-          xs={6}
-          sx={{
-            height: 500,
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <QuestionBox
-            question={question}
-            nextQuestion={nextQuestion}
-            questionNumber={questionNumber}
-            startQuestion={startQuestion}
-            timeUp={timeUp}
-            qn={qn}
-            setQn={setQn}
-          />
-        </Grid>
-        <Grid
-          item
-          xs={6}
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            height: 500,
-          }}
-        >
-          <AnswerBox question={question} />
-        </Grid>
-        <Grid
-          item
-          xs={12}
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            height: 460,
-          }}
-        >
-          <PlayerAnswersBox
-            questionNumber={questionNumber}
-            answerArray={answerArray}
-            setIsCorrect={setIsCorrect}
-            correctAnswersArray={correctAnswersArray}
-            qnAnswers={qnAnswers}
-            setQnAnswers={setQnAnswers}
-            answerCheckDisasbled={answerCheckDisasbled}
-          />
-        </Grid>
+  return (
+    <Grid container spacing={{ xs: 0, md: 0 }}>
+      <Grid
+        item
+        xs={6}
+        sx={{
+          height: 500,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <QuestionBox
+          startQuestion={startQuestion}
+          timeUp={timeUp}
+          token={token}
+        />
       </Grid>
-    );
+      <Grid
+        item
+        xs={6}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: 500,
+        }}
+      >
+        <AnswerBox />
+      </Grid>
+      <Grid
+        item
+        xs={12}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: 460,
+        }}
+      >
+        <PlayerAnswersBox setIsCorrect={setIsCorrect} />
+      </Grid>
+    </Grid>
+  );
 }

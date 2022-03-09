@@ -1,4 +1,4 @@
-import React, {  } from "react";
+import React from "react";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import InputLabel from "@mui/material/InputLabel";
@@ -10,50 +10,49 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import IconButton from "@mui/material/IconButton";
 import PlayerAnswer from "./PlayerAnswer";
 import Button from "@mui/material/Button";
-
-export default function PlayerAnswersBox({
-  questionNumber,
-  answerArray,
-  setIsCorrect,
-  correctAnswersArray,
-  qnAnswers,
+import {
+  selectGameState,
   setQnAnswers,
-  answerCheckDisasbled,
-}) {
+} from "../../state/gameSlice";
+import { useDispatch, useSelector } from "react-redux";
+
+export default function PlayerAnswersBox({ setIsCorrect }) {
+  const dispatch = useDispatch();
+  const gameState = useSelector(selectGameState);
   const handleClickBack = async (event) => {
-    setQnAnswers(qnAnswers - 1);
+    dispatch(setQnAnswers(gameState.qnAnswers - 1));
   };
   const handleClickNext = async (event) => {
-    setQnAnswers(qnAnswers + 1);
+    dispatch(setQnAnswers(gameState.qnAnswers + 1));
   };
   const handleChange = async (event, newValue) => {
-    setQnAnswers(newValue.props.value);
+    dispatch(setQnAnswers(newValue.props.value));
   };
 
   const handleClickAllTrue = async (event) => {
-    for (const answer of answerArray) {
+    for (const answer of gameState.answerArray) {
       if (
         (answer.is_correct !== true) &
         (answer.is_correct !== false) &
-        (answer.qn === qnAnswers)
+        (answer.qn === gameState.qnAnswers)
       ) {
         setIsCorrect(true, answer);
       }
     }
   };
   const handleClickAllFalse = async (event) => {
-    for (const answer of answerArray) {
+    for (const answer of gameState.answerArray) {
       if (
         (answer.is_correct !== true) &
         (answer.is_correct !== false) &
-        (answer.qn === qnAnswers)
+        (answer.qn === gameState.qnAnswers)
       ) {
         setIsCorrect(false, answer);
       }
     }
   };
 
-  const qnArr = [...Array(questionNumber).keys()];
+  const qnArr = [...Array(gameState.questionNumber).keys()];
 
   return (
     <Paper
@@ -70,7 +69,7 @@ export default function PlayerAnswersBox({
           onClick={handleClickBack}
           size="medium"
           sx={{ ml: 2 }}
-          disabled={answerCheckDisasbled}
+          disabled={gameState.answerCheckDisasbled}
         >
           <ArrowBackIosNewIcon sx={{ width: 40, height: 40 }} />
         </IconButton>
@@ -79,15 +78,15 @@ export default function PlayerAnswersBox({
             <InputLabel>Question</InputLabel>
             <Select
               variant="outlined"
-              value={qnAnswers}
+              value={gameState.qnAnswers}
               label="Question"
               onChange={handleChange}
-              disabled={answerCheckDisasbled}
+              disabled={gameState.answerCheckDisasbled}
             >
               {qnArr.map((q) => (
                 <MenuItem key={q + 1} value={q + 1}>
                   <h2>
-                    {q + 1}/{questionNumber}
+                    {q + 1}/{gameState.questionNumber}
                   </h2>
                 </MenuItem>
               ))}
@@ -98,19 +97,19 @@ export default function PlayerAnswersBox({
           onClick={handleClickNext}
           size="medium"
           sx={{ ml: 2 }}
-          disabled={answerCheckDisasbled}
+          disabled={gameState.answerCheckDisasbled}
         >
           <ArrowForwardIosIcon sx={{ width: 40, height: 40 }} />
         </IconButton>
         <div className="correct-answer-text">
-          {correctAnswersArray[qnAnswers]}
+          {gameState.correctAnswersArray[gameState.qnAnswers]}
         </div>
         <Button
           variant="outlined"
           onClick={handleClickAllTrue}
           size="medium"
           sx={{ ml: 1 }}
-          disabled={answerCheckDisasbled}
+          disabled={gameState.answerCheckDisasbled}
         >
           Mark remaining correct
         </Button>
@@ -119,20 +118,19 @@ export default function PlayerAnswersBox({
           onClick={handleClickAllFalse}
           size="medium"
           sx={{ ml: 2 }}
-          disabled={answerCheckDisasbled}
+          disabled={gameState.answerCheckDisasbled}
         >
           Mark remaining false
         </Button>
       </Grid>
       <Grid container sx={{ marginLeft: 4 }} spacing={{ xs: 2, md: 0 }}>
-        {answerArray
-          .filter((answer) => answer.qn === qnAnswers)
+        {gameState.answerArray
+          .filter((answer) => answer.qn === gameState.qnAnswers)
           .map((answer) => (
             <PlayerAnswer
               key={answer.teamId + answer.qn}
               answer={answer}
               setIsCorrect={setIsCorrect}
-              answerCheckDisasbled={answerCheckDisasbled}
             />
           ))}
       </Grid>

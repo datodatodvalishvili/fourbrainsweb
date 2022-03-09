@@ -3,9 +3,12 @@ import Grid from "@mui/material/Grid";
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
 import IconButton from "@mui/material/IconButton";
+import { selectGameState, setQnAnswers } from "../../state/gameSlice";
+import {  useSelector } from "react-redux";
 
-export default function PlayerAnswer({ answer, setIsCorrect, answerCheckDisasbled }) {
+export default function PlayerAnswer({ setIsCorrect, answer }) {
   let className;
+  const gameState = useSelector(selectGameState);
   switch (answer.is_correct) {
     case true:
       className = "player-answer-top-box answer-correct";
@@ -29,7 +32,7 @@ export default function PlayerAnswer({ answer, setIsCorrect, answerCheckDisasble
             <IconButton
               onClick={() => setIsCorrect(true, answer)}
               size="medium"
-              disabled={answerCheckDisasbled}
+              disabled={gameState.answerCheckDisasbled}
             >
               <CheckIcon sx={{ width: 40, height: 40, marginRight: 0 }} />
             </IconButton>
@@ -40,7 +43,7 @@ export default function PlayerAnswer({ answer, setIsCorrect, answerCheckDisasble
             <IconButton
               onClick={() => setIsCorrect(false, answer)}
               size="medium"
-              disabled={answerCheckDisasbled}
+              disabled={gameState.answerCheckDisasbled}
             >
               <ClearIcon sx={{ width: 40, height: 40, marginRight: 0 }} />
             </IconButton>

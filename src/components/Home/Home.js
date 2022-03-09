@@ -80,22 +80,26 @@ export default function Home({ token }) {
       </div>
     );
   else {
-    const listTeams = teams.map((team, index) => (
-      <Grid item xs={4} key={team.id}>
-        <Team
-          token={token}
-          team={{ ...team, index: index }}
-          setSelectedTeamID={setSelectedTeamID}
-        />
-      </Grid>
-    ));
+    console.log("test2")
+    const listTeams = teams
+      .filter((team) => team.membership !== "del")
+      .map((team, index) => (
+        <Grid item xs={4} key={team.id}>
+          <Team
+            token={token}
+            team={{ ...team }}
+            setSelectedTeamID={setSelectedTeamID}
+          />
+        </Grid>
+      ));
     return (
       <div>
         <Grid container spacing={2}>
-          {listTeams}
           <Grid item xs={4}>
             <CreateTeam token={token} />
+            <JoinTeam token={token} />
           </Grid>
+          {listTeams}
         </Grid>
         <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
           <Alert

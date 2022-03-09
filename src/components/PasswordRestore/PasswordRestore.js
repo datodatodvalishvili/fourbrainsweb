@@ -15,12 +15,10 @@ async function passwordRestoreApi(username, setErrorMsg, navigate) {
       if (response.data.success) {
         navigate("/");
       } else {
-        console.log(response.data);
         setErrorMsg("Server error!");
       }
     })
     .catch(function (error) {
-      console.log(error.data);
       setErrorMsg("Server error!");
     });
 }

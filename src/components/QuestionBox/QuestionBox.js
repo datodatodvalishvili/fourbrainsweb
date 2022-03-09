@@ -10,30 +10,26 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import IconButton from "@mui/material/IconButton";
 import Timer from "../Timer/Timer";
 import Button from "@mui/material/Button";
+import { selectGameState, nextQuestion, setQn } from "../../state/gameSlice";
+import { useDispatch, useSelector } from "react-redux";
 
-export default function QuestionBox({
-  question,
-  nextQuestion,
-  questionNumber,
-  timeUp,
-  startQuestion,
-  qn,
-  setQn,
-}) {
+export default function QuestionBox({ timeUp, startQuestion, token }) {
+  const dispatch = useDispatch();
+  const gameState = useSelector(selectGameState);
   const [timerStarted, setTimerStarted] = useState(false);
   const handleClickBack = async (event) => {
-    await nextQuestion(qn - 2);
-    setQn(qn - 1);
+    dispatch(nextQuestion({ qn: gameState.qn - 2, token: token }));
+    dispatch(setQn(gameState.qn - 1));
     setTimerStarted(false);
   };
   const handleClickNext = async (event) => {
-    await nextQuestion(qn);
-    setQn(qn + 1);
+    dispatch(nextQuestion({ qn: gameState.qn, token: token }));
+    dispatch(setQn(gameState.qn + 1));
     setTimerStarted(false);
   };
   const handleChange = async (event, newValue) => {
-    await nextQuestion(newValue.props.value - 1);
-    setQn(newValue.props.value);
+    dispatch(nextQuestion({ qn: newValue.props.value - 1, token: token }));
+    dispatch(setQn(newValue.props.value));
     setTimerStarted(false);
   };
 
@@ -42,7 +38,7 @@ export default function QuestionBox({
     startQuestion();
   };
 
-  const qnArr = [...Array(questionNumber).keys()];
+  const qnArr = [...Array(gameState.questionNumber).keys()];
 
   return (
     <Paper
@@ -64,14 +60,14 @@ export default function QuestionBox({
             <InputLabel>Question</InputLabel>
             <Select
               variant="outlined"
-              value={qn}
+              value={gameState.qn}
               label="Question"
               onChange={handleChange}
             >
               {qnArr.map((q) => (
                 <MenuItem key={q + 1} value={q + 1}>
                   <h2>
-                    {q + 1}/{questionNumber}
+                    {q + 1}/{gameState.questionNumber}
                   </h2>
                 </MenuItem>
               ))}
@@ -93,7 +89,7 @@ export default function QuestionBox({
           height: 200,
         }}
       >
-        <h3>{question.question_text}</h3>
+        <h3>{gameState.question.question_text}</h3>
       </Paper>
       <Paper
         elevation={3}

@@ -4,7 +4,16 @@ import FourBrainsAPI from "../axios/FourBrainsAPI";
 export const CurrentUserContext = createContext();
 
 export const CurrentUserProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState({
+    first_name: "",
+    last_name: "",
+    id: 0,
+    username: "",
+    phone_prefix: "",
+    phone: "",
+    email: "",
+    token: "",
+  });
 
   const fetchCurrentUser = async () => {
     const tokenString = localStorage.getItem("token");
@@ -15,13 +24,16 @@ export const CurrentUserProvider = ({ children }) => {
         },
       })
         .then(function (response) {
-          setCurrentUser(response.data.user_data);
+          let resData = response.data.user_data;
+          resData.token = tokenString;
+          setCurrentUser(resData);
         })
         .catch(function (error) {
+          setCurrentUser(null);
         });
-    } catch (error) {}
-
-    setCurrentUser(null);
+    } catch (error) {
+      setCurrentUser(null);
+    }
   };
 
   return (

@@ -6,7 +6,11 @@ import TabContext from "@material-ui/lab/TabContext";
 import TabList from "@material-ui/lab/TabList";
 import TabPanel from "@material-ui/lab/TabPanel";
 
-export default function AnswerBox({ question }) {
+import { selectGameState } from "../../state/gameSlice";
+import { useSelector } from "react-redux";
+
+export default function AnswerBox() {
+  const gameState = useSelector(selectGameState);
   const [value, setValue] = useState("1");
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -38,21 +42,21 @@ export default function AnswerBox({ question }) {
               <Tab
                 label="Extras"
                 value="4"
-                disabled={!question.attachment_img_url}
+                disabled={!gameState.question.attachment_img_url}
               />
             </TabList>
           </Box>
           <TabPanel value="1">
-            <h3>{question.answers}</h3>
+            <h3>{gameState.question.answers}</h3>
           </TabPanel>
           <TabPanel value="2">
-            <h3>{question.comment}</h3>
+            <h3>{gameState.question.comment}</h3>
           </TabPanel>
           <TabPanel value="3">
-            <h3>{question.source}</h3>
+            <h3>{gameState.question.source}</h3>
           </TabPanel>
           <TabPanel value="4">
-            <img src={question.attachment_img_url} alt="attachment" />
+            <img src={gameState.question.attachment_img_url} alt="attachment" />
           </TabPanel>
         </TabContext>
       </Box>

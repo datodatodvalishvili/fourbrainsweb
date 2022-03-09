@@ -19,10 +19,6 @@ export const getTeamDetails = createAsyncThunk(
         // handle success
         if (response.data.success) {
           if (response.data.members_data[0]) {
-            console.log({
-              ...data,
-              members_data: response.data.members_data,
-            });
             teamDetails = {
               ...data,
               members_data: response.data.members_data,
@@ -78,6 +74,70 @@ export const getTeams = createAsyncThunk(
   }
 );
 
+export const inviteToTeam = createAsyncThunk(
+  "teams/inviteToTeam",
+  async (data) => {
+    let teamMember = null;
+    await FourBrainsAPI.post(
+      "4brains/team/player/membership/update/",
+      {
+        team_id: data.team_id,
+        player_id: data.player_id,
+        new_status: "inv",
+      },
+      {
+        headers: {
+          Authorization: `Token ${data.token}`,
+        },
+      }
+    )
+      .then(function (response) {
+        if (response.data.success) {
+          teamMember = data;
+        } else {
+          teamMember = null;
+        }
+      })
+      .catch(function (error) {
+        teamMember = null;
+      });
+    return teamMember;
+  }
+);
+
+export const updateMemberStatus = createAsyncThunk(
+  "teams/updateMemberStatus",
+
+  async (data) => {
+    let teamMember = null;
+    await FourBrainsAPI.post(
+      "4brains/team/player/membership/update/",
+      {
+        team_id: data.team_id,
+        player_id: data.player_id,
+        new_status: data.status,
+      },
+      {
+        headers: {
+          Authorization: `Token ${data.token}`,
+        },
+      }
+    )
+      .then(function (response) {
+        if (response.data.success) {
+          teamMember = data;
+        } else {
+          teamMember = null;
+        }
+      })
+      .catch(function (error) {
+        console.log(error.data);
+        teamMember = null;
+      });
+    return teamMember;
+  }
+);
+
 const teamsSlice = createSlice({
   name: "teams",
   initialState,
@@ -104,11 +164,39 @@ const teamsSlice = createSlice({
       })
       .addCase(getTeamDetails.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.teams[action.payload.index] = action.payload;
+        const objIndex = state.teams.findIndex(
+          (obj) => obj.id == action.payload.id
+        );
+        state.teams[objIndex] = action.payload;
       })
       .addCase(getTeamDetails.rejected, (state, action) => {
         state.isLoading = false;
-        state.teams[action.payload.index] = null;
+        const objIndex = state.teams.findIndex(
+          (obj) => obj.id == action.payload.id
+        );
+        state.teams[objIndex] = null;
+      })
+      .addCase(inviteToTeam.fulfilled, (state, action) => {
+        const objIndex = state.teams.findIndex(
+          (obj) => obj.id == action.payload.team_id
+        );
+        state.teams[objIndex].members_data.push(action.payload);
+      })
+      .addCase(inviteToTeam.rejected, (state, action) => {
+      })
+      .addCase(updateMemberStatus.fulfilled, (state, action) => {
+        const objIndex = state.teams.findIndex(
+          (obj) => obj.id == action.payload.team_id
+        );
+        const memberIndex = state.teams[objIndex].members_data.findIndex(
+          (obj) => obj.player_id == action.payload.player_id
+        );
+        state.teams[objIndex].members_data[memberIndex].status =
+          action.payload.status;
+        if (action.payload.updateCurUser === true)
+          state.teams[objIndex].membership = action.payload.status;
+      })
+      .addCase(updateMemberStatus.rejected, (state, action) => {
       });
   },
 });

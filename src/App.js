@@ -48,7 +48,7 @@ function App() {
                 </>
               }
             />
-            <Route path="/Host" element={<Host token={token} />} />
+            <Route path="/Host/:battleID" element={<Host token={token} />} />
             <Route
               path="/ScoreBoard/:battleID"
               element={<ScoreBoard token={token} />}
