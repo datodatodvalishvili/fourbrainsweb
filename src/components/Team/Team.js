@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Button from "@mui/material/Button";
 import TeamMembers from "./TeamMembers";
 import ListItem from "@mui/material/ListItem";
-import { getTeamDetails, updateMemberStatus } from "../../state/teamsSlice";
+import { updateMemberStatus } from "../../state/teamsSlice";
 import { useDispatch } from "react-redux";
 import { useCurrentUser } from "../../context/UserContext";
 
-export default function Team({ team, setSelectedTeamID, token }) {
-  const dispach = useDispatch();
+export default function Team({ team, setSelectedTeamID }) {
+  const dispatch = useDispatch();
   const { currentUser } = useCurrentUser();
-  
+
   const acceptInvite = (id) => {
-    dispach(
+    dispatch(
       updateMemberStatus({
         token: currentUser.token,
         player_id: currentUser.id,
@@ -22,7 +22,7 @@ export default function Team({ team, setSelectedTeamID, token }) {
     );
   };
   const declineInvite = (id) => {
-    dispach(
+    dispatch(
       updateMemberStatus({
         token: currentUser.token,
         player_id: currentUser.id,
@@ -33,11 +33,6 @@ export default function Team({ team, setSelectedTeamID, token }) {
     );
   };
 
-  useEffect(() => {
-    if (!team.members_data) {
-      dispach(getTeamDetails({ ...team, token: token }));
-    }
-  }, []);
   if (team.membership === "req") {
     return (
       <ListItem key={team.id} disableGutters>

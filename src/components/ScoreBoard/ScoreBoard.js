@@ -16,10 +16,27 @@ export default function ScoreBoard({ token }) {
     { id: "team_name", label: "Team Name", minWidth: 100 },
     { id: "battle_score", label: "Score", minWidth: 50 },
   ];
-  for (let i = 1; i <= 30; i++) {
-    columns.push({ id: i, label: i, minWidth: 50 });
-  }
+  const [columnsState, setColumnsState] = useState([]);
+
   useEffect(() => {
+    const getBattleDetails = async () => {
+      await FourBrainsAPI.get(`4brains/battle/${battleID}/details/`, {
+        headers: { Authorization: `Token ${token}` },
+      })
+        .then(function (response) {
+          if (response.data.battle) {
+            const n_questions = response.data.battle.n_questions;
+            for (let i = 1; i <= n_questions; i++) {
+              columns.push({ id: i, label: i, minWidth: 50 });
+            }
+            setColumnsState(columns);
+          }
+        })
+        .catch(function (error) {
+          console.error(error.response.data);
+        });
+    };
+
     const getScoreBoard = async () => {
       try {
         FourBrainsAPI.get(`4brains/battle/${battleID}/scoreboard/`, {
@@ -48,6 +65,7 @@ export default function ScoreBoard({ token }) {
         console.error(error);
       }
     };
+    getBattleDetails();
     getScoreBoard();
     const scoreBoardUpdate = setInterval(() => {
       getScoreBoard();
@@ -62,7 +80,7 @@ export default function ScoreBoard({ token }) {
       <Table stickyHeader aria-label="sticky table">
         <TableHead>
           <TableRow>
-            {columns.map((column) => (
+            {columnsState.map((column) => (
               <TableCell
                 key={column.id}
                 align={column.align}
@@ -77,7 +95,7 @@ export default function ScoreBoard({ token }) {
           {rows.map((row) => {
             return (
               <TableRow hover role="checkbox" tabIndex={-1} key={row.team_id}>
-                {columns.map((column) => {
+                {columnsState.map((column) => {
                   const value = row[column.id];
                   return (
                     <TableCell key={column.id} align={column.align}>

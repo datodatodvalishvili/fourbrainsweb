@@ -31,7 +31,7 @@ export default function BattlePick({ token, teamID, joinBattle }) {
   if (isLoading) return <Loading />;
 
   const listBattles = battles.map((battle) => (
-    <Grid item xs={4} key={battle.id}>
+    <Grid item xs={12} sm={6} md={4} lg={3} key={battle.id}>
       <Battle battle={battle} joinBattle={joinBattle} />
     </Grid>
   ));

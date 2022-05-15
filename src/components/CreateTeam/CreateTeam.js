@@ -3,7 +3,8 @@ import FourBrainsAPI from "../../axios/FourBrainsAPI";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
-async function CreateTeamAPI(teamName, setTeam, token) {
+import { useCurrentUser } from "../../context/UserContext";
+async function CreateTeamAPI(teamName, token) {
   FourBrainsAPI.post(
     "4brains/team/create/",
     {
@@ -20,22 +21,19 @@ async function CreateTeamAPI(teamName, setTeam, token) {
     .then(function (response) {
       // handle success
       if (response.data.success) {
-        setTeam();
       } else {
         alert("Server error");
-        setTeam();
       }
     })
-    .catch(function (error) {
-      setTeam(); 
-    });
+    .catch(function (error) {});
 }
 
-export default function CreateTeam({ setTeam, token }) {
+export default function CreateTeam() {
   const [teamName, setTeamName] = useState("");
+  const { currentUser } = useCurrentUser();
   const handleSubmit = async (e) => {
     e.preventDefault();
-    CreateTeamAPI(teamName, setTeam, token);
+    CreateTeamAPI(teamName, currentUser.token);
     setTeamName("");
   };
   return (

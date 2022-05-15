@@ -9,6 +9,7 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import IconButton from "@mui/material/IconButton";
 import Timer from "../Timer/Timer";
+import Confirmation from "./Confirmation";
 import Button from "@mui/material/Button";
 import { selectGameState, nextQuestion, setQn } from "../../state/gameSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,25 +17,27 @@ import { useDispatch, useSelector } from "react-redux";
 export default function QuestionBox({ timeUp, startQuestion, token }) {
   const dispatch = useDispatch();
   const gameState = useSelector(selectGameState);
-  const [timerStarted, setTimerStarted] = useState(false);
+  const [startTime, setStartTime] = useState(0);
+  const [open, setOpen] = useState(false);
+
   const handleClickBack = async (event) => {
-    dispatch(nextQuestion({ qn: gameState.qn - 2, token: token }));
-    dispatch(setQn(gameState.qn - 1));
-    setTimerStarted(false);
+    setOpen(true);
   };
   const handleClickNext = async (event) => {
+    //setOpen(true);
     dispatch(nextQuestion({ qn: gameState.qn, token: token }));
     dispatch(setQn(gameState.qn + 1));
-    setTimerStarted(false);
+    setStartTime(0);
   };
-  const handleChange = async (event, newValue) => {
-    dispatch(nextQuestion({ qn: newValue.props.value - 1, token: token }));
-    dispatch(setQn(newValue.props.value));
-    setTimerStarted(false);
+
+  const handleBack = async (event) => {
+    dispatch(nextQuestion({ qn: gameState.qn - 2, token: token }));
+    dispatch(setQn(gameState.qn - 1));
+    setStartTime(0);
   };
 
   const startTimer = () => {
-    setTimerStarted(true);
+    setStartTime(Date.now());
     startQuestion();
   };
 
@@ -51,6 +54,11 @@ export default function QuestionBox({ timeUp, startQuestion, token }) {
         minHeight: 0,
       }}
     >
+      <Confirmation
+        open={open}
+        setOpen={setOpen}
+        successCallback={handleBack}
+      />
       <Grid container spacing={{ xs: 0, md: 0 }}>
         <IconButton onClick={handleClickBack} size="medium" sx={{ ml: 2 }}>
           <ArrowBackIosNewIcon sx={{ width: 40, height: 40 }} />
@@ -62,7 +70,7 @@ export default function QuestionBox({ timeUp, startQuestion, token }) {
               variant="outlined"
               value={gameState.qn}
               label="Question"
-              onChange={handleChange}
+              disabled
             >
               {qnArr.map((q) => (
                 <MenuItem key={q + 1} value={q + 1}>
@@ -103,8 +111,12 @@ export default function QuestionBox({ timeUp, startQuestion, token }) {
           textAlign: "center",
         }}
       >
-        {timerStarted ? (
-          <Timer setTimerStarted={setTimerStarted} timeUp={timeUp} />
+        {startTime !== 0 ? (
+          <Timer
+            startTime={startTime}
+            setStartTime={setStartTime}
+            timeUp={timeUp}
+          />
         ) : (
           <Button sx={{ height: 115 }} variant="outlined" onClick={startTimer}>
             Start timer

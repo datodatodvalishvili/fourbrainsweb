@@ -10,8 +10,6 @@ import MuiAlert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { getTeams, selectTeams, selectIsLoading } from "../../state/teamsSlice";
 import { useDispatch, useSelector } from "react-redux";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
-import { useTheme } from "@mui/material/styles";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -23,9 +21,6 @@ export default function Home({ token }) {
   const teams = useSelector(selectTeams);
   const isLoading = useSelector(selectIsLoading);
   const [open, setOpen] = useState(false);
-
-  const theme = useTheme();
-  const largeScreen = useMediaQuery(theme.breakpoints.up("md"));
 
   useEffect(() => {
     dispach(getTeams(token));
@@ -57,6 +52,7 @@ export default function Home({ token }) {
           setSelectedTeamID(0);
           setOpen(true);
         } else {
+          console.log(response.data);
         }
       })
       .catch(function (error) {
@@ -85,24 +81,19 @@ export default function Home({ token }) {
       </div>
     );
   else {
-    console.log("test2")
     const listTeams = teams
       .filter((team) => team.membership !== "del")
-      .map((team, index) => (
-        <Grid item xs={4} key={team.id}>
-          <Team
-            token={token}
-            team={{ ...team }}
-            setSelectedTeamID={setSelectedTeamID}
-          />
+      .map((team) => (
+        <Grid item xs={12} sm={6} md={4} lg={3} key={team.id}>
+          <Team team={{ ...team }} setSelectedTeamID={setSelectedTeamID} />
         </Grid>
       ));
     return (
       <div>
-        <Grid container spacing={2} direction={largeScreen ? "row" : "column"}>
-          <Grid item xs={4}>
-            <CreateTeam token={token} />
-            <JoinTeam token={token} />
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <CreateTeam />
+            <JoinTeam />
           </Grid>
           {listTeams}
         </Grid>

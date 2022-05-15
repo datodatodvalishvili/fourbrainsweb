@@ -1,15 +1,19 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Player from "../SoundPlayer/SoundPlayer";
 
-function CircularProgressWithLabel(props) {
+function CircularProgressWithLabel({ timeLeft }) {
   return (
     <div style={{ textAlign: "center" }}>
       <Box sx={{ position: "relative", display: "inline-flex" }}>
-        <CircularProgress variant="determinate" {...props} size={100} />
-        {props.value > 83.333 && (
+        <CircularProgress
+          variant="determinate"
+          value={timeLeft * 1.6666}
+          size={100}
+        />
+        {timeLeft < 10 && (
           <Player
             url={
               "https://assets.mixkit.co/sfx/download/mixkit-slow-tick-tock-clock-timer-1050.wav"
@@ -34,7 +38,7 @@ function CircularProgressWithLabel(props) {
             color="text.secondary"
             sx={{ fontSize: 50 }}
           >
-            {`${60 - Math.round(props.value / 1.66666)}`}
+            {timeLeft}
           </Typography>
         </Box>
       </Box>
@@ -42,23 +46,33 @@ function CircularProgressWithLabel(props) {
   );
 }
 
-export default function Timer({ setTimerStarted, timeUp }) {
-  const [progress, setProgress] = React.useState(1);
+const calculateTimeLeft = (StartDate) => {
+  let difference = Math.floor(StartDate + 60 * 1000 - Date.now());
+  let seconds = 0;
+  if (difference > 0) {
+    seconds = Math.floor((difference / 1000) % 60);
+  }
+  return seconds;
+};
 
-  React.useEffect(() => {
+export default function Timer({ setStartTime, timeUp, startTime }) {
+  const [timeLeft, setTimeLeft] = useState(60);
+
+  useEffect(() => {
     const timer = setInterval(() => {
-      setProgress((prevProgress) => {
-        if (prevProgress >= 99) {
-          timeUp();
-          setTimerStarted(false);
-        }
-        return prevProgress >= 99 ? 0 : prevProgress + 1 * 1.66666;
-      });
-    }, 1000);
+      setTimeLeft(calculateTimeLeft(startTime));
+    }, 100);
     return () => {
       clearInterval(timer);
     };
   }, []);
+  useEffect(() => {
+    console.log(timeLeft);
+    if (timeLeft <= 0) {
+      timeUp(timeLeft);
+      setStartTime(0);
+    }
+  }, [timeLeft]);
 
-  return <CircularProgressWithLabel value={progress} />;
+  return <CircularProgressWithLabel timeLeft={timeLeft} />;
 }

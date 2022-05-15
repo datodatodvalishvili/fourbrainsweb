@@ -3,7 +3,7 @@ import Grid from "@mui/material/Grid";
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
 import IconButton from "@mui/material/IconButton";
-import { selectGameState, setQnAnswers } from "../../state/gameSlice";
+import { selectGameState } from "../../state/gameSlice";
 import {  useSelector } from "react-redux";
 
 export default function PlayerAnswer({ setIsCorrect, answer }) {
@@ -21,10 +21,10 @@ export default function PlayerAnswer({ setIsCorrect, answer }) {
   }
 
   return (
-    <Grid item xs={1}>
+    <Grid item xs={2}>
       <div className={className}>
         <div>Team: {answer.teamId}</div>
-        <div>Answer: {answer.answer}</div>
+        <div>{answer.answer}</div>
       </div>
       <Grid container spacing={{ xs: 0, md: 0 }}>
         <Grid item xs={6}>
@@ -33,8 +33,9 @@ export default function PlayerAnswer({ setIsCorrect, answer }) {
               onClick={() => setIsCorrect(true, answer)}
               size="medium"
               disabled={gameState.answerCheckDisasbled}
+              sx={{ color: "white" }}
             >
-              <CheckIcon sx={{ width: 40, height: 40, marginRight: 0 }} />
+              <CheckIcon sx={{ width: 30, height: 30, marginRight: 0 }} />
             </IconButton>
           </div>
         </Grid>
@@ -44,8 +45,9 @@ export default function PlayerAnswer({ setIsCorrect, answer }) {
               onClick={() => setIsCorrect(false, answer)}
               size="medium"
               disabled={gameState.answerCheckDisasbled}
+              sx={{ color: "white" }}
             >
-              <ClearIcon sx={{ width: 40, height: 40, marginRight: 0 }} />
+              <ClearIcon sx={{ width: 30, height: 30, marginRight: 0 }} />
             </IconButton>
           </div>
         </Grid>

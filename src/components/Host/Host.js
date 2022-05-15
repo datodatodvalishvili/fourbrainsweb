@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from "react";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
+import React, { useEffect } from "react";
 import FourBrainsAPI from "../../axios/FourBrainsAPI";
 import QuestionBox from "../QuestionBox/QuestionBox";
 import AnswerBox from "../AnswerBox/AnswerBox";
@@ -9,7 +7,6 @@ import Grid from "@mui/material/Grid";
 import { ref, update } from "firebase/database";
 import db from "../FireBase/FireBaseConfig";
 import { useObject } from "react-firebase-hooks/database";
-import Stack from "@mui/material/Stack";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   setAnswerArray,
@@ -70,7 +67,7 @@ export default function Host({ token }) {
     else dispatch(getBattleDetails({ token: token }));
   }, [battleStarted]);
 
-  async function submitAnswer(IsCorrect, answerOb) {
+  async function submitAnswer(decision, answerOb) {
     FourBrainsAPI.post(
       "4brains/battle/team/question/answer/submit/",
       {
@@ -79,7 +76,7 @@ export default function Host({ token }) {
         team_id: answerOb.teamId,
         answer_time: answerOb.answer_time / 1000,
         answer_text: answerOb.answer,
-        decision: IsCorrect ? 1 : 0,
+        decision: decision ,//IsCorrect ? 1 : 0,
       },
       {
         headers: { Authorization: `Token ${token}` },
@@ -111,6 +108,8 @@ export default function Host({ token }) {
             `4brains/battle/${gameState.battleID}/answers/${answerOb.teamId}_${answerOb.qn}/is_correct`
           ] = IsCorrect;
           update(ref(db), updates);
+        } else {
+          submitAnswer(-1, answerOb);
         }
       })
       .catch(function (error) {});
@@ -121,7 +120,7 @@ export default function Host({ token }) {
       `4brains/battle/${gameState.battleID}/answers/${answerOb.teamId}_${answerOb.qn}/is_correct`
     ] = IsCorrect;
 
-    submitAnswer(IsCorrect, answerOb);
+    submitAnswer(IsCorrect ? 1 : 0, answerOb);
 
     update(ref(db), updates);
   }
@@ -153,35 +152,25 @@ export default function Host({ token }) {
         item
         xs={6}
         sx={{
-          height: 500,
           display: "flex",
           flexDirection: "column",
         }}
+        height="100vh"
       >
         <QuestionBox
           startQuestion={startQuestion}
           timeUp={timeUp}
           token={token}
         />
+        <AnswerBox />
       </Grid>
       <Grid
+        height="100vh"
         item
         xs={6}
         sx={{
           display: "flex",
           flexDirection: "column",
-          height: 500,
-        }}
-      >
-        <AnswerBox />
-      </Grid>
-      <Grid
-        item
-        xs={12}
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          height: 460,
         }}
       >
         <PlayerAnswersBox setIsCorrect={setIsCorrect} />

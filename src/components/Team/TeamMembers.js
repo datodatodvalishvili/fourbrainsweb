@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import Collapse from "@mui/material/Collapse";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ClearIcon from "@mui/icons-material/Clear";
 import CheckIcon from "@mui/icons-material/Check";
+import PersonIcon from "@mui/icons-material/Person";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import IconButton from "@mui/material/IconButton";
 import { TransitionGroup } from "react-transition-group";
@@ -105,6 +106,11 @@ export default function TeamMembers({ team }) {
                       {member.status === "mng" && (
                         <Tooltip title="Team manager">
                           <VerifiedUserIcon />
+                        </Tooltip>
+                      )}
+                      {member.status === "mmb" && (
+                        <Tooltip title="Team member">
+                          <PersonIcon />
                         </Tooltip>
                       )}
                     </>

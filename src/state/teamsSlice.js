@@ -6,102 +6,86 @@ const initialState = {
   isLoading: true,
 };
 
-export const getTeamDetails = createAsyncThunk(
-  "teams/getTeamDetails",
-  async (data) => {
-    let teamDetails = null;
-    await FourBrainsAPI.get(`4brains/team/${data.id}/info/`, {
+const getTeamDetails = async (team_id, token) => {
+  try {
+    const response = await FourBrainsAPI.get(`4brains/team/${team_id}/info/`, {
       headers: {
-        Authorization: `Token ${data.token}`,
+        Authorization: `Token ${token}`,
       },
-    })
-      .then(function (response) {
-        // handle success
-        if (response.data.success) {
-          if (response.data.members_data[0]) {
-            teamDetails = {
-              ...data,
-              members_data: response.data.members_data,
-            };
-          } else {
-            teamDetails = {
-              ...data,
-              members_data: null,
-            };
-          }
-        } else {
-          teamDetails = {
-            ...data,
-            members_data: null,
-          };
-        }
-      })
-      .catch(function (error) {
-        teamDetails = {
-          ...data,
-          members_data: null,
-        };
-      });
-    return teamDetails;
+    });
+    if (response.data.success) {
+      if (response.data.members_data[0]) {
+        return response.data.members_data;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  } catch (error) {
+    return null;
   }
-);
+};
 
 export const getTeams = createAsyncThunk(
   "teams/getTeams",
   async (token, setErrorMsg) => {
-    let teams = null;
-    await FourBrainsAPI.get("4brains/user/teams/get/", {
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    })
-      .then(function (response) {
-        // handle success
-        if (response.data.success) {
-          if (response.data.teams[0]) {
-            teams = response.data.teams;
-          } else {
-            teams = null;
-          }
-        } else {
-          teams = null;
-        }
-      })
-      .catch(function (error) {
-        teams = null;
+    try {
+      const response = await FourBrainsAPI.get("4brains/user/teams/get/", {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
       });
-    return teams;
+
+      if (response.data.success) {
+        if (response.data.teams[0]) {
+          const teams = response.data.teams;
+          const teams_final = await Promise.all(
+            teams.map(async (team) => {
+              return {
+                ...team,
+                members_data: await getTeamDetails(team.id, token),
+              };
+            })
+          );
+          return teams_final;
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      return null;
+    }
   }
 );
 
 export const inviteToTeam = createAsyncThunk(
   "teams/inviteToTeam",
   async (data) => {
-    let teamMember = null;
-    await FourBrainsAPI.post(
-      "4brains/team/player/membership/update/",
-      {
-        team_id: data.team_id,
-        player_id: data.player_id,
-        new_status: "inv",
-      },
-      {
-        headers: {
-          Authorization: `Token ${data.token}`,
+    try {
+      let response = await FourBrainsAPI.post(
+        "4brains/team/player/membership/update/",
+        {
+          team_id: data.team_id,
+          player_id: data.player_id,
+          new_status: "inv",
         },
-      }
-    )
-      .then(function (response) {
-        if (response.data.success) {
-          teamMember = data;
-        } else {
-          teamMember = null;
+        {
+          headers: {
+            Authorization: `Token ${data.token}`,
+          },
         }
-      })
-      .catch(function (error) {
-        teamMember = null;
-      });
-    return teamMember;
+      );
+      if (response.data.success) {
+        return data;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      return null;
+    }
   }
 );
 
@@ -109,32 +93,29 @@ export const updateMemberStatus = createAsyncThunk(
   "teams/updateMemberStatus",
 
   async (data) => {
-    let teamMember = null;
-    await FourBrainsAPI.post(
-      "4brains/team/player/membership/update/",
-      {
-        team_id: data.team_id,
-        player_id: data.player_id,
-        new_status: data.status,
-      },
-      {
-        headers: {
-          Authorization: `Token ${data.token}`,
+    try {
+      const response = await FourBrainsAPI.post(
+        "4brains/team/player/membership/update/",
+        {
+          team_id: data.team_id,
+          player_id: data.player_id,
+          new_status: data.status,
         },
-      }
-    )
-      .then(function (response) {
-        if (response.data.success) {
-          teamMember = data;
-        } else {
-          teamMember = null;
+        {
+          headers: {
+            Authorization: `Token ${data.token}`,
+          },
         }
-      })
-      .catch(function (error) {
-        console.log(error.data);
-        teamMember = null;
-      });
-    return teamMember;
+      );
+
+      if (response.data.success) {
+        return data;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      return null;
+    }
   }
 );
 
@@ -159,31 +140,13 @@ const teamsSlice = createSlice({
         state.isLoading = false;
         state.teams = null;
       })
-      .addCase(getTeamDetails.pending, (state, action) => {
-        state.isLoading = true;
-      })
-      .addCase(getTeamDetails.fulfilled, (state, action) => {
-        state.isLoading = false;
-        const objIndex = state.teams.findIndex(
-          (obj) => obj.id == action.payload.id
-        );
-        state.teams[objIndex] = action.payload;
-      })
-      .addCase(getTeamDetails.rejected, (state, action) => {
-        state.isLoading = false;
-        const objIndex = state.teams.findIndex(
-          (obj) => obj.id == action.payload.id
-        );
-        state.teams[objIndex] = null;
-      })
       .addCase(inviteToTeam.fulfilled, (state, action) => {
         const objIndex = state.teams.findIndex(
           (obj) => obj.id == action.payload.team_id
         );
         state.teams[objIndex].members_data.push(action.payload);
       })
-      .addCase(inviteToTeam.rejected, (state, action) => {
-      })
+      .addCase(inviteToTeam.rejected, (state, action) => {})
       .addCase(updateMemberStatus.fulfilled, (state, action) => {
         const objIndex = state.teams.findIndex(
           (obj) => obj.id == action.payload.team_id
@@ -196,8 +159,7 @@ const teamsSlice = createSlice({
         if (action.payload.updateCurUser === true)
           state.teams[objIndex].membership = action.payload.status;
       })
-      .addCase(updateMemberStatus.rejected, (state, action) => {
-      });
+      .addCase(updateMemberStatus.rejected, (state, action) => {});
   },
 });
 

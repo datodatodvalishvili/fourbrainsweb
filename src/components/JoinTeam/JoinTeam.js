@@ -73,7 +73,7 @@ export default function JoinTeam() {
     setOpen(false);
   };
   return (
-    <div className="auth-inner">
+    <div className="team-inner">
       <Stack spacing={2}>
         <h1>Join team</h1>
         <Button variant="contained" color="info" onClick={handleClickOpen}>

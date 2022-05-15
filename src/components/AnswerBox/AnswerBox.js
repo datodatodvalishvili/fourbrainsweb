@@ -22,9 +22,7 @@ export default function AnswerBox() {
       sx={{
         margin: 1,
         padding: 1,
-        marginBottom: 0,
-        flexGrow: 1,
-        minHeight: 0,
+        minHeight: "40vh",
       }}
     >
       <Box sx={{ width: "100%", typography: "body1" }}>
