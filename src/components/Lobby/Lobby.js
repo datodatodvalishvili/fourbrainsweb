@@ -7,68 +7,34 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import FourBrainsAPI from "../../axios/FourBrainsAPI";
 import { useParams } from "react-router-dom";
+import Button from "@mui/material/Button";
 
-export default function ScoreBoard({ token }) {
+export default function Lobby({ token, setGameStarted }) {
   const { battleID } = useParams();
   const [rows, setRows] = useState([]);
   const columns = [
-    { id: "battle_place", label: "#", minWidth: 100 },
-    { id: "team_name", label: "Team Name", minWidth: 100 },
-    { id: "battle_score", label: "Score", minWidth: 50 },
+    { id: "team_id", label: "ID" },
+    { id: "team_name", label: "Team Name" },
+    { id: "status_string", label: "Status" },
   ];
-  const [columnsState, setColumnsState] = useState([]);
 
-  useEffect(() => { 
+  useEffect(() => {
     const getBattleDetails = async () => {
       await FourBrainsAPI.get(`4brains/battle/${battleID}/teams/`, {
         headers: { Authorization: `Token ${token}` },
       })
         .then(function (response) {
-          if (response.data.battle) {
-            const n_questions = response.data.battle.n_questions;
-            for (let i = 1; i <= n_questions; i++) {
-              columns.push({ id: i, label: i, minWidth: 50 });
-            }
-            setColumnsState(columns);
+          if (response.data.success) {
+            setRows(response.data.teams);
           }
         })
         .catch(function (error) {
           console.error(error.response.data);
         });
     };
-
-    const getScoreBoard = async () => {
-      try {
-        FourBrainsAPI.get(`4brains/battle/${battleID}/scoreboard/`, {
-          headers: { Authorization: `Token ${token}` },
-        })
-          .then(function (response) {
-            // handle success
-            if (response.data.success) {
-              const battle_results_tmp = [];
-              const battle_results = response.data.battle_results;
-              battle_results.forEach(function (item, index) {
-                const { battle_answers, ...newRow } = item;
-                battle_results_tmp.push({
-                  ...newRow,
-                  ...item.battle_answers,
-                });
-              });
-              setRows(battle_results_tmp);
-            } else console.log(response.data);
-          })
-          .catch(function (error) {
-            console.error(error.response.data);
-            alert(error.message);
-          });
-      } catch (error) {
-        console.error(error);
-      }
-    };
     getBattleDetails();
-    getScoreBoard();
     const scoreBoardUpdate = setInterval(() => {
-      getScoreBoard();
+      getBattleDetails();
     }, 5000);
     return () => {
       clearInterval(scoreBoardUpdate);
@@ -77,10 +43,21 @@ export default function ScoreBoard({ token }) {
 
   return (
     <TableContainer>
+      <Button
+        sx={{ alignSelf: "center" }}
+        variant="contained"
+        color="info"
+        size="large"
+        onClick={() => {
+          setGameStarted(true);
+        }}
+      >
+        Start game
+      </Button>
       <Table stickyHeader aria-label="sticky table">
         <TableHead>
           <TableRow>
-            {columnsState.map((column) => (
+            {columns.map((column) => (
               <TableCell
                 key={column.id}
                 align={column.align}
@@ -95,7 +72,7 @@ export default function ScoreBoard({ token }) {
           {rows.map((row) => {
             return (
               <TableRow hover role="checkbox" tabIndex={-1} key={row.team_id}>
-                {columnsState.map((column) => {
+                {columns.map((column) => {
                   const value = row[column.id];
                   return (
                     <TableCell key={column.id} align={column.align}>

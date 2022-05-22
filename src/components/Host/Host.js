@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import FourBrainsAPI from "../../axios/FourBrainsAPI";
 import QuestionBox from "../QuestionBox/QuestionBox";
 import AnswerBox from "../AnswerBox/AnswerBox";
@@ -18,11 +18,13 @@ import {
   setBattleID,
 } from "../../state/gameSlice";
 import { useDispatch, useSelector } from "react-redux";
+import Lobby from "../Lobby/Lobby";
 
 export default function Host({ token }) {
   const dispatch = useDispatch();
   dispatch(setBattleID(useParams().battleID));
   const battleStarted = useSelector(selectBattleStarted);
+  const [gameStarted, setGameStarted] = useState(false);
   const gameState = useSelector(selectGameState);
   const [answers, loading, error] = useObject(
     ref(db, `4brains/battle/${gameState.battleID}/answers`)
@@ -62,21 +64,22 @@ export default function Host({ token }) {
   }, [answers]);
 
   useEffect(() => {
-    if (battleStarted)
+    if (battleStarted && gameStarted)
       dispatch(nextQuestion({ token: token, qn: gameState.qn - 1 }));
     else dispatch(getBattleDetails({ token: token }));
-  }, [battleStarted]);
+  }, [battleStarted, gameStarted]);
 
   async function submitAnswer(decision, answerOb) {
     FourBrainsAPI.post(
-      "4brains/battle/team/question/answer/submit/",
+      "4brains/battle/team/question/answer/submit&check/",
       {
         battle_id: gameState.battleID,
         question_id: answerOb.id,
         team_id: answerOb.teamId,
         answer_time: answerOb.answer_time / 1000,
         answer_text: answerOb.answer,
-        decision: decision ,//IsCorrect ? 1 : 0,
+        decision: decision, //IsCorrect ? 1 : 0,
+        auto_mode:0
       },
       {
         headers: { Authorization: `Token ${token}` },
@@ -95,13 +98,16 @@ export default function Host({ token }) {
         team_id: answerOb.teamId,
         answer_time: answerOb.answer_time / 1000,
         answer_text: answerOb.answer,
+        auto_mode: 1,
+        decision: 2,
       },
       {
         headers: { Authorization: `Token ${token}` },
       }
     )
       .then(function (response) {
-        const IsCorrect = response.data.closest_levenshtein_score === 0;
+        console.log(response.data);
+        const IsCorrect = response.data.tqa_data.decision === true;
         if (IsCorrect) {
           const updates = {};
           updates[
@@ -146,6 +152,8 @@ export default function Host({ token }) {
     update(ref(db), updates);
   }
 
+  if (!gameStarted)
+    return <Lobby token={token} setGameStarted={setGameStarted} />;
   return (
     <Grid container spacing={{ xs: 0, md: 0 }}>
       <Grid
@@ -173,7 +181,7 @@ export default function Host({ token }) {
           flexDirection: "column",
         }}
       >
-        <PlayerAnswersBox setIsCorrect={setIsCorrect} />
+        <PlayerAnswersBox setIsCorrect={setIsCorrect} token={token} />
       </Grid>
     </Grid>
   );

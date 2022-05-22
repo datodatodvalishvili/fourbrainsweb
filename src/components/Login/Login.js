@@ -5,8 +5,9 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
+import { useCurrentUser } from "../../context/UserContext";
 
-async function loginUser(data, setErrorMsg, setToken) {
+async function loginUser(data, setErrorMsg, setToken, setCurrentUser) {
   FourBrainsAPI.post("user/login/", {
     username: data.username,
     password: data.password,
@@ -15,6 +16,7 @@ async function loginUser(data, setErrorMsg, setToken) {
       // handle success
       if (response.data.token) {
         setToken(response.data.token);
+        setCurrentUser(response.data.user);
       } else {
         alert("Server error");
         setToken("");
@@ -30,6 +32,7 @@ export default function Login({ setToken }) {
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const { setCurrentUser } = useCurrentUser();
   const handleSubmit = async (e) => {
     e.preventDefault();
     loginUser(
@@ -38,7 +41,8 @@ export default function Login({ setToken }) {
         password,
       },
       setErrorMsg,
-      setToken
+      setToken,
+      setCurrentUser
     );
   };
   return (

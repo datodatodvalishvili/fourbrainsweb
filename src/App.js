@@ -35,28 +35,26 @@ function App() {
     );
   }
   return (
-    <CurrentUserProvider>
-      <div className="App">
-        <BrowserRouter>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <>
-                  <NavBar setToken={setToken} />
-                  <Home token={token} />
-                </>
-              }
-            />
-            <Route path="/Host/:battleID" element={<Host token={token} />} />
-            <Route
-              path="/ScoreBoard/:battleID"
-              element={<ScoreBoard token={token} />}
-            />
-          </Routes>
-        </BrowserRouter>
-      </div>
-    </CurrentUserProvider>
+    <div className="App">
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <NavBar setToken={setToken} />
+                <Home token={token} />
+              </>
+            }
+          />
+          <Route path="/Host/:battleID" element={<Host token={token} />} />
+          <Route
+            path="/ScoreBoard/:battleID"
+            element={<ScoreBoard token={token} />}
+          />
+        </Routes>
+      </BrowserRouter>
+    </div>
   );
 }
 

@@ -3,10 +3,10 @@ import { useCurrentUser } from "../../context/UserContext";
 import Profile from "./Profile";
 
 export default function NavBar({ setToken }) {
-  const { currentUser, fetchCurrentUser } = useCurrentUser();
+  const { currentUser } = useCurrentUser();
 
   useEffect(() => {
-    fetchCurrentUser();
+    //fetchCurrentUser();
     //eslint-disable-next-line
   }, []);
   return (

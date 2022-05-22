@@ -1,5 +1,5 @@
 import axios from "axios";
 
 export default axios.create({
-  baseURL: "https://tifliser.com/api",
+  baseURL: "https://braingames.tifliser.com/api",
 });

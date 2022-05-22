@@ -15,7 +15,7 @@ export const CurrentUserProvider = ({ children }) => {
     token: "",
   });
 
-  const fetchCurrentUser = async () => {
+  /*const fetchCurrentUser = async () => {
     const tokenString = localStorage.getItem("token");
     try {
       FourBrainsAPI.get(`user/get-details/`, {
@@ -34,10 +34,10 @@ export const CurrentUserProvider = ({ children }) => {
     } catch (error) {
       setCurrentUser(null);
     }
-  };
+  };*/
 
   return (
-    <CurrentUserContext.Provider value={{ currentUser, fetchCurrentUser }}>
+    <CurrentUserContext.Provider value={{ currentUser, setCurrentUser }}>
       {children}
     </CurrentUserContext.Provider>
   );

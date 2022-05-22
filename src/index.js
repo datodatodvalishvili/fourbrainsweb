@@ -5,12 +5,15 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { Provider } from "react-redux";
 import store from "./state/store";
+import { CurrentUserProvider } from "./context/UserContext";
 
 ReactDOM.render(
   <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
+    <CurrentUserProvider>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </CurrentUserProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );

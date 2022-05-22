@@ -15,11 +15,16 @@ import TabList from "@material-ui/lab/TabList";
 import TabPanel from "@material-ui/lab/TabPanel";
 import PlayerAnswer from "./PlayerAnswer";
 import Button from "@mui/material/Button";
-import { selectGameState, setQnAnswers } from "../../state/gameSlice";
+import {
+  nextQuestionAnswers,
+  selectGameState,
+  setQnAnswers,
+} from "../../state/gameSlice";
 import { useDispatch, useSelector } from "react-redux";
 import AnswerBox from "../AnswerBox/AnswerBox";
+import AnswerBoxAnswers from "../AnswerBox/AnswerBoxAnswers";
 
-export default function PlayerAnswersBox({ setIsCorrect }) {
+export default function PlayerAnswersBox({ setIsCorrect, token }) {
   const dispatch = useDispatch();
   const gameState = useSelector(selectGameState);
   const [value, setValue] = useState("1");
@@ -27,13 +32,15 @@ export default function PlayerAnswersBox({ setIsCorrect }) {
     setValue(newValue);
   };
   const handleClickBack = async (event) => {
-    dispatch(setQnAnswers(gameState.qnAnswers - 1));
+    dispatch(
+      nextQuestionAnswers({ token: token, qn: gameState.qnAnswers - 2 })
+    );
   };
   const handleClickNext = async (event) => {
-    dispatch(setQnAnswers(gameState.qnAnswers + 1));
+    dispatch(nextQuestionAnswers({ token: token, qn: gameState.qnAnswers }));
   };
   const handleChange = async (event, newValue) => {
-    dispatch(setQnAnswers(newValue.props.value));
+    dispatch(nextQuestionAnswers({ token: token, qn: newValue.props.value -1 }));
   };
 
   const handleClickAllTrue = async (event) => {
@@ -173,9 +180,9 @@ export default function PlayerAnswersBox({ setIsCorrect }) {
                 height: 200,
               }}
             >
-              <h3>{gameState.question.question_text}</h3>
+              <h3>{gameState.questionAnswers.question_text}</h3>
             </Paper>
-            <AnswerBox />
+            <AnswerBoxAnswers />
           </TabPanel>
         </TabContext>
       </Box>

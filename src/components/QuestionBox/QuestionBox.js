@@ -11,7 +11,7 @@ import IconButton from "@mui/material/IconButton";
 import Timer from "../Timer/Timer";
 import Confirmation from "./Confirmation";
 import Button from "@mui/material/Button";
-import { selectGameState, nextQuestion, setQn } from "../../state/gameSlice";
+import { selectGameState, nextQuestion, setQn, nextQuestionAnswers } from "../../state/gameSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function QuestionBox({ timeUp, startQuestion, token }) {
@@ -27,12 +27,14 @@ export default function QuestionBox({ timeUp, startQuestion, token }) {
     //setOpen(true);
     dispatch(nextQuestion({ qn: gameState.qn, token: token }));
     dispatch(setQn(gameState.qn + 1));
+    dispatch(nextQuestionAnswers({ token: token, qn: gameState.qn -1 }));
     setStartTime(0);
   };
 
   const handleBack = async (event) => {
     dispatch(nextQuestion({ qn: gameState.qn - 2, token: token }));
     dispatch(setQn(gameState.qn - 1));
+    dispatch(nextQuestionAnswers({ token: token, qn: gameState.qn - 3 }));
     setStartTime(0);
   };
 
